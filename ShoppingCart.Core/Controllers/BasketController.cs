@@ -29,7 +29,7 @@ namespace ShoppingCart.Core.Controllers
             return Json(_basketManager.GetBasket(userId));
         }
 
-        [HttpGet("api/{userId}/basket/add")]
+        [HttpPut("api/{userId}/basket/add")]
         public IActionResult AddToBasket(
             [FromRoute]string userId,
             [FromQuery]int? productId = null,
@@ -43,7 +43,7 @@ namespace ShoppingCart.Core.Controllers
                 return NotFound("Product");
 
             var basketItem = _basketManager.GetBasketItem(userId, product.Id);
-            if (product.Stock < basketItem.ItemCount + 1)
+            if (!product.HasSufficientStockFor(basketItem.ItemCount + 1))
                 return BadRequest("Not Enough Stock");
             
             _basketManager.AddItemToUserBasket(userId, product.Id);
@@ -52,7 +52,32 @@ namespace ShoppingCart.Core.Controllers
             return Json(basket);
         }
 
-        [HttpGet("api/{userId}/basket/remove")]
+        [HttpPost("api/{userId}/basket/add")]
+        public IActionResult BulkAddToBasket(
+            [FromRoute]string userId,
+            [FromBody]List<BasketItem> products)
+        {
+            // Validate
+            foreach(var addToBasketItem in products)
+            {
+                var product = _stockManager.GetStockItem(addToBasketItem.ProductId);
+                var basketItem = _basketManager.GetBasketItem(userId, addToBasketItem.ProductId);
+
+                if (!product.HasSufficientStockFor(basketItem.ItemCount + addToBasketItem.ItemCount))
+                    return BadRequest("Not Enough Stock for item: " + product.Name);
+            }
+
+            // Apply
+            foreach(var item in products)
+            {
+                _basketManager.AddItemToUserBasket(userId, item.ProductId, item.ItemCount);
+            }
+
+            var basket = _basketManager.GetBasket(userId);
+            return Json(basket);
+        }
+        
+        [HttpPut("api/{userId}/basket/remove")]
         public IActionResult RemoveFromBasket(
             [FromRoute]string userId,
             [FromQuery]int? productId = null,
@@ -70,8 +95,7 @@ namespace ShoppingCart.Core.Controllers
             var basket = _basketManager.GetBasket(userId);
             return Json(basket);
         }
-
-
+        
         private StockItem ResolveProduct(int? productId, string productName)
         {
             if (productId.HasValue)

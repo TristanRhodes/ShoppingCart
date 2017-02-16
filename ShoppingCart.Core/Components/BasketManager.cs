@@ -30,10 +30,10 @@ namespace ShoppingCart.Core.Components
             return item;
         }
 
-        public void AddItemToUserBasket(string userId, int productId)
+        public void AddItemToUserBasket(string userId, int productId, int quantity = 1)
         {
             var item = GetOrCreateItem(userId, productId);
-            item.ItemCount++;
+            item.ItemCount += quantity;
         }
 
         public bool RemoveItemFromUserBasket(string userId, int productId)

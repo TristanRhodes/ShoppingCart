@@ -13,5 +13,10 @@ namespace ShoppingCart.Core.Model
         public string Description { get; set; }
         public int Stock { get; set; }
         public decimal Price { get; set; }
+
+        public bool HasSufficientStockFor(int quantity)
+        {
+            return Stock >= quantity;
+        }
     }
 }

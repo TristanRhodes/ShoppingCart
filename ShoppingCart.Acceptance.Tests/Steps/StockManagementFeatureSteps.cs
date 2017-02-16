@@ -92,7 +92,7 @@ namespace ShoppingCart.Acceptance.Tests.Steps
             var url = string.Format("api/{0}/basket/add?productId={1}", UserName, (int)StockItem.id);
 
             var response = _client
-                .GetAsync(url)
+                .PutAsync(url, null)
                 .Result;
 
             response
