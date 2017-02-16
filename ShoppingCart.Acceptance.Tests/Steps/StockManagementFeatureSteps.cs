@@ -56,6 +56,5 @@ namespace ShoppingCart.Acceptance.Tests.Steps
             StockData.Count.ShouldBeGreaterThan(0);
             AssertionExtensions.ShouldBeFullyPopulatedStockData(StockData.First());
         }
-
     }
 }
