@@ -393,11 +393,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\DataImporter.cs" />
+    <Compile Include="Components\IDataImporter.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Components\" />
     <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
