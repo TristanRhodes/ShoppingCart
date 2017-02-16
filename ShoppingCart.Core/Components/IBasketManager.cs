@@ -11,9 +11,8 @@ namespace ShoppingCart.Core.Components
     {
         List<BasketItem> GetBasket(string userId);
 
-        void IncrementItemCount(string userId, int productId);
+        void AddItemToUserBasket(string userId, int productId);
 
-        void DecrementItemCount(string userId, int productId);
+        void RemoveItemFromUserBasket(string userId, int productId);
     }
-
 }

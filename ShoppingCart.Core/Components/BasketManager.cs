@@ -20,13 +20,13 @@ namespace ShoppingCart.Core.Components
             return baskets[userId];
         }
 
-        public void IncrementItemCount(string userId, int productId)
+        public void AddItemToUserBasket(string userId, int productId)
         {
             var item = GetOrCreateItem(userId, productId);
             item.ItemCount++;
         }
 
-        public void DecrementItemCount(string userId, int productId)
+        public void RemoveItemFromUserBasket(string userId, int productId)
         {
             var item = GetItem(userId, productId);
             if (item == null)

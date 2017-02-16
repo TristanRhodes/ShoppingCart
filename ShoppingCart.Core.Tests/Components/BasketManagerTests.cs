@@ -34,7 +34,7 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager.IncrementItemCount(user, productId);
+            _basketManager.AddItemToUserBasket(user, productId);
 
             var basket = _basketManager.GetBasket(user);
 
@@ -53,7 +53,7 @@ namespace ShoppingCart.Core.Tests.Components
 
             for (int i = 0; i < count; i++)
             {
-                _basketManager.IncrementItemCount(user, productId);
+                _basketManager.AddItemToUserBasket(user, productId);
             }
 
             var basket = _basketManager.GetBasket(user);
@@ -70,7 +70,7 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager.DecrementItemCount(user, productId);
+            _basketManager.RemoveItemFromUserBasket(user, productId);
 
             var basket = _basketManager.GetBasket(user);
             basket.ShouldBeEmpty();
@@ -82,8 +82,8 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager.IncrementItemCount(user, productId);
-            _basketManager.DecrementItemCount(user, productId);
+            _basketManager.AddItemToUserBasket(user, productId);
+            _basketManager.RemoveItemFromUserBasket(user, productId);
 
             var basket = _basketManager.GetBasket(user);
             basket.ShouldBeEmpty();

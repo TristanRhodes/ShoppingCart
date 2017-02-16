@@ -35,7 +35,7 @@ namespace ShoppingCart.Core.Components
             return _stock.SingleOrDefault(s => s.Name.ToLower() == stockName.ToLower());
         }
 
-        public void IncrementItemCount(int productId)
+        public void AddStock(int productId)
         {
             var item = GetStockItem(productId);
             if (item == null)
@@ -44,7 +44,7 @@ namespace ShoppingCart.Core.Components
             item.Stock++;
         }
 
-        public void DecrementItemCount(int productId)
+        public void RemoveStock(int productId)
         {
             var item = GetStockItem(productId);
             if (item == null)

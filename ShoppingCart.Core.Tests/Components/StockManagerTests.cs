@@ -72,7 +72,7 @@ namespace ShoppingCart.Core.Components
             var stock = InitializeWithStock(stockItem);
 
             _stockManager
-                .IncrementItemCount(stockId);
+                .AddStock(stockId);
 
             stockItem =_stockManager
                 .GetStockItem(stockId);
@@ -95,7 +95,7 @@ namespace ShoppingCart.Core.Components
             var stock = InitializeWithStock(stockItem);
 
             _stockManager
-                .DecrementItemCount(stockId);
+                .RemoveStock(stockId);
 
             stockItem = _stockManager
                 .GetStockItem(stockId);
@@ -118,7 +118,7 @@ namespace ShoppingCart.Core.Components
             var stock = InitializeWithStock(stockItem);
 
             Should
-                .Throw<ApplicationException>(() => _stockManager.DecrementItemCount(stockId));
+                .Throw<ApplicationException>(() => _stockManager.RemoveStock(stockId));
         }
 
         private List<StockItem> InitializeWithStock(params StockItem[] stock)

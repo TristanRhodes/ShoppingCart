@@ -15,8 +15,8 @@ namespace ShoppingCart.Core.Components
 
         StockItem GetStockItem(string stockName);
 
-        void IncrementItemCount(int productId);
+        void AddStock(int productId);
 
-        void DecrementItemCount(int productId);
+        void RemoveStock(int productId);
     }
 }
