@@ -1,4 +1,5 @@
 ﻿using ShoppingCart.Core.Components;
+using ShoppingCart.Core.Model;
 using Shouldly;
 using System;
 using System.Collections.Generic;

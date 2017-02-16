@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShoppingCart.Core.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -52,14 +53,5 @@ namespace ShoppingCart.Core.Components
             item.Price = Convert.ToDecimal(parts[4]);
             return item;
         }
-    }
-
-    public class DataItem
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public int Stock { get; set; }
-        public decimal Price { get; set; }
     }
 }
