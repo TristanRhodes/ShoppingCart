@@ -13,6 +13,6 @@ namespace ShoppingCart.Core.Components
 
         void AddItemToUserBasket(string userId, int productId);
 
-        void RemoveItemFromUserBasket(string userId, int productId);
+        bool RemoveItemFromUserBasket(string userId, int productId);
     }
 }

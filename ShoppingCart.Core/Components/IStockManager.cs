@@ -17,6 +17,6 @@ namespace ShoppingCart.Core.Components
 
         void AddStock(int productId);
 
-        void RemoveStock(int productId);
+        bool RemoveStock(int productId);
     }
 }

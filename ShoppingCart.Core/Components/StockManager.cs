@@ -44,16 +44,17 @@ namespace ShoppingCart.Core.Components
             item.Stock++;
         }
 
-        public void RemoveStock(int productId)
+        public bool RemoveStock(int productId)
         {
             var item = GetStockItem(productId);
             if (item == null)
-                return;
+                return false;
 
             if (item.Stock == 0)
-                throw new ApplicationException("Stock cannot be reduced below 0.");
+                return false;
 
             item.Stock--;
+            return true;
         }
     }
 }

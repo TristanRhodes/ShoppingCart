@@ -81,7 +81,7 @@ namespace ShoppingCart.Core.Components
         }
 
         [Test]
-        public void ShouldDecreaseStockCountOnDecrement()
+        public void ShouldDecreaseStockCountOnReduceAndReturnTrue()
         {
             var stockId = 1;
             var stockLevel = 1;
@@ -95,7 +95,8 @@ namespace ShoppingCart.Core.Components
             var stock = InitializeWithStock(stockItem);
 
             _stockManager
-                .RemoveStock(stockId);
+                .RemoveStock(stockId)
+                .ShouldBeTrue();
 
             stockItem = _stockManager
                 .GetStockItem(stockId);
@@ -104,7 +105,7 @@ namespace ShoppingCart.Core.Components
         }
 
         [Test]
-        public void ShouldErrorWhenReducingStockBelowZero()
+        public void ShouldReturnFalseWhenReducingStockBelowZero()
         {
             var stockId = 1;
             var stockLevel = 0;
@@ -116,9 +117,9 @@ namespace ShoppingCart.Core.Components
             };
 
             var stock = InitializeWithStock(stockItem);
-
-            Should
-                .Throw<ApplicationException>(() => _stockManager.RemoveStock(stockId));
+            _stockManager
+                .RemoveStock(stockId)
+                .ShouldBeFalse();
         }
 
         private List<StockItem> InitializeWithStock(params StockItem[] stock)

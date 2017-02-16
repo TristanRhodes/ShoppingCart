@@ -70,7 +70,9 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager.RemoveItemFromUserBasket(user, productId);
+            _basketManager
+                .RemoveItemFromUserBasket(user, productId)
+                .ShouldBeFalse();
 
             var basket = _basketManager.GetBasket(user);
             basket.ShouldBeEmpty();
@@ -83,7 +85,9 @@ namespace ShoppingCart.Core.Tests.Components
             var productId = 1;
 
             _basketManager.AddItemToUserBasket(user, productId);
-            _basketManager.RemoveItemFromUserBasket(user, productId);
+            _basketManager
+                .RemoveItemFromUserBasket(user, productId)
+                .ShouldBeTrue();
 
             var basket = _basketManager.GetBasket(user);
             basket.ShouldBeEmpty();

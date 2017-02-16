@@ -26,16 +26,22 @@ namespace ShoppingCart.Core.Components
             item.ItemCount++;
         }
 
-        public void RemoveItemFromUserBasket(string userId, int productId)
+        public bool RemoveItemFromUserBasket(string userId, int productId)
         {
             var item = GetItem(userId, productId);
             if (item == null)
-                return;
+                return false;
+
+            if (item.ItemCount <= 0)
+                return false;
 
             item.ItemCount--;
 
-            if (item.ItemCount <= 0)
+            var cleanup = item.ItemCount <= 0;
+            if (cleanup)
                 RemoveBasketItem(userId, productId);
+
+            return true;
         }
 
         private BasketItem GetOrCreateItem(string userId, int productId)
