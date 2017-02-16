@@ -397,6 +397,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Components\" />
     <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
