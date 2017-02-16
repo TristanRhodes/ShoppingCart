@@ -161,7 +161,6 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .ShouldBeOfType<NotFoundObjectResult>();
             }
 
-
             [Test]
             public void ShouldRemoveFromBasket()
             {
