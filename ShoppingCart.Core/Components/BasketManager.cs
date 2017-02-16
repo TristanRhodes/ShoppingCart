@@ -20,6 +20,16 @@ namespace ShoppingCart.Core.Components
             return baskets[userId];
         }
 
+
+        public BasketItem GetBasketItem(string userId, int id)
+        {
+            var item = GetItem(userId, id);
+            if (item == null)
+                item = new Model.BasketItem() { ProductId = id, ItemCount = 0 };
+
+            return item;
+        }
+
         public void AddItemToUserBasket(string userId, int productId)
         {
             var item = GetOrCreateItem(userId, productId);
@@ -76,5 +86,6 @@ namespace ShoppingCart.Core.Components
             if (item != null)
                 items.Remove(item);
         }
+
     }
 }

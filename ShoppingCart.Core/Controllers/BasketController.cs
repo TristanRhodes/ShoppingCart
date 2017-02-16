@@ -42,11 +42,11 @@ namespace ShoppingCart.Core.Controllers
             if (product == null)
                 return NotFound("Product");
 
-            if (product.Stock < 1)
+            var basketItem = _basketManager.GetBasketItem(userId, product.Id);
+            if (product.Stock < basketItem.ItemCount + 1)
                 return BadRequest("Not Enough Stock");
-
-            if (_stockManager.RemoveStock(product.Id))
-                _basketManager.AddItemToUserBasket(userId, product.Id);
+            
+            _basketManager.AddItemToUserBasket(userId, product.Id);
 
             var basket = _basketManager.GetBasket(userId);
             return Json(basket);
@@ -65,8 +65,7 @@ namespace ShoppingCart.Core.Controllers
             if (product == null)
                 return NotFound("Product");
 
-            if (_basketManager.RemoveItemFromUserBasket(userId, product.Id))
-                _stockManager.RemoveStock(product.Id);
+            _basketManager.RemoveItemFromUserBasket(userId, product.Id);
 
             var basket = _basketManager.GetBasket(userId);
             return Json(basket);
@@ -83,8 +82,8 @@ namespace ShoppingCart.Core.Controllers
 
         private static bool HasInvalidProductIdentifiers(int? productId, string productName)
         {
-            return (!productId.HasValue && !string.IsNullOrEmpty(productName))
-                || (productId.HasValue && string.IsNullOrEmpty(productName));
+            return (!productId.HasValue && string.IsNullOrEmpty(productName))
+                || (productId.HasValue && !string.IsNullOrEmpty(productName));
         }
     }
 }

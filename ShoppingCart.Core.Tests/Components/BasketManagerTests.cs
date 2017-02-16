@@ -92,5 +92,18 @@ namespace ShoppingCart.Core.Tests.Components
             var basket = _basketManager.GetBasket(user);
             basket.ShouldBeEmpty();
         }
+
+        [Test]
+        public void ShouldReturnEmptyZeroItemWhenNothingFoundInBasket()
+        {
+            var user = "user";
+            var productId = 1;
+
+            var item = _basketManager
+                .GetBasketItem(user, productId);
+
+            item.ProductId.ShouldBe(productId);
+            item.ItemCount.ShouldBe(0);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using ShoppingCart.Core.Components;
 using ShoppingCart.Core.Model;
 using Shouldly;
 using System;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShoppingCart.Core.Components
+namespace ShoppingCart.Core.Tests.Components
 {
     public class StockManagerTests
     {
