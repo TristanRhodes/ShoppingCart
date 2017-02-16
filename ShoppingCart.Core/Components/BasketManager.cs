@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShoppingCart.Core.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,15 +7,6 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Components
 {
-    public interface IBasketManager
-    {
-        List<BasketItem> GetBasket(string userId);
-
-        void IncrementItemCount(string userId, int productId);
-
-        void DecrementItemCount(string userId, int productId);
-    }
-
     public class BasketManager : IBasketManager
     {
         private Dictionary<string, List<BasketItem>> baskets 
@@ -66,7 +58,7 @@ namespace ShoppingCart.Core.Components
         private BasketItem GetItem(string userId, int productId)
         {
             if (!baskets.ContainsKey(userId))
-                baskets.Add(userId, new List<Components.BasketItem>());
+                baskets.Add(userId, new List<BasketItem>());
 
             var items = baskets[userId];
             return items.SingleOrDefault(i => i.ProductId == productId);
@@ -80,12 +72,5 @@ namespace ShoppingCart.Core.Components
             if (item != null)
                 items.Remove(item);
         }
-    }
-
-    public class BasketItem
-    {
-        public int ProductId { get; set; }
-
-        public int ItemCount { get; set; }
     }
 }

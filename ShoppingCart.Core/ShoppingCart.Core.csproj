@@ -396,11 +396,13 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Components\BasketManager.cs" />
     <Compile Include="Components\DataImporter.cs" />
+    <Compile Include="Components\IBasketManager.cs" />
     <Compile Include="Components\IStockManager.cs" />
     <Compile Include="Components\StockManager.cs" />
     <Compile Include="Controllers\BasketController.cs" />
     <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Controllers\StockController.cs" />
+    <Compile Include="Model\BasketItem.cs" />
     <Compile Include="Model\StockItem.cs" />
     <Compile Include="Components\IDataImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
