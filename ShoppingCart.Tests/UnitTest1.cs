@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ShoppingCart.Core.Controllers;
 
 namespace ShoppingCart.Tests
 {
@@ -9,6 +10,7 @@ namespace ShoppingCart.Tests
         [TestMethod]
         public void TestMethod1()
         {
+            var controller = new ValuesController();
             throw new NotImplementedException();
         }
     }

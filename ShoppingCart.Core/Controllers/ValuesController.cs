@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ShoppingCart.Controllers
+namespace ShoppingCart.Core.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
