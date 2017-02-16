@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ShoppingCart.Core.Controllers;
+using ShoppingCart.Core;
 
 namespace ShoppingCart
 {
@@ -28,10 +29,15 @@ namespace ShoppingCart
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Use shopping cart services
+            services
+                .UseImportedStockFile("app_data/example_data.csv")
+                .AddShoppingCartComponents();
+
             // Add framework services.
             services
                 .AddMvc()
-                .AddApplicationPart(typeof(ValuesController).Assembly)
+                .AddApplicationPart(typeof(ShoppingCart.Core.Bootstrapper).Assembly)
                 .AddControllersAsServices();
         }
 

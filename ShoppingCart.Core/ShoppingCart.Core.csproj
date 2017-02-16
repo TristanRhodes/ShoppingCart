@@ -393,9 +393,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="Components\DataImporter.cs" />
     <Compile Include="Components\IStockManager.cs" />
     <Compile Include="Components\StockManager.cs" />
+    <Compile Include="Controllers\StockController.cs" />
     <Compile Include="Model\StockItem.cs" />
     <Compile Include="Components\IDataImporter.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
