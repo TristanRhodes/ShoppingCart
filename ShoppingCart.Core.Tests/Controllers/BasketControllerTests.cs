@@ -306,5 +306,107 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .AddItemToUserBasket(userName, productId2, itemsToAdd);
             }
         }
+
+        public class BasketCheckout : BasketTestBase
+        {
+            [Test]
+            public void ShouldReturnBadRequestWhenProductNotFound()
+            {
+                var userName = "user";
+                var productId = 1;
+
+                var basketItems = new List<BasketItem>()
+                {
+                    new BasketItem() { ProductId = productId, ItemCount = 1}
+                };
+
+                _basketManager
+                    .GetBasket(userName)
+                    .Returns(basketItems);
+
+                _controller
+                    .CheckoutBasket(userName)
+                    .ShouldBeOfType<BadRequestObjectResult>()
+                    .Value.ShouldBeOfType<string>()
+                    .ShouldBe("Product not found: " + productId);
+            }
+
+            [Test]
+            public void ShouldReturnBadRequestWhenInsufficientStock()
+            {
+                var productId = 1;
+                var productName = "productName";
+                var userName = "user";
+
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Stock = 0,
+                    Name = productName
+                };
+
+                var basketItems = new List<BasketItem>()
+                {
+                    new BasketItem() { ProductId = productId, ItemCount = 1}
+                };
+
+                _basketManager
+                    .GetBasket(userName)
+                    .Returns(basketItems);
+
+                _stockManager
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _controller
+                    .CheckoutBasket(userName)
+                    .ShouldBeOfType<BadRequestObjectResult>()
+                    .Value.ShouldBeOfType<string>()
+                    .ShouldBe("Not Enough Stock for item: " + productName);
+            }
+            
+            [Test]
+            public void ShouldReturnInvoiceAndDeductStockWhenSuccesful()
+            {
+                var productId = 1;
+                var stock = 2;
+                var price = 6.99M;
+                var productName = "productName";
+                var userName = "user";
+
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Stock = stock,
+                    Name = productName,
+                    Price = price
+                };
+
+                var basketItems = new List<BasketItem>()
+                {
+                    new BasketItem() { ProductId = productId, ItemCount = stock}
+                };
+
+                _basketManager
+                    .GetBasket(userName)
+                    .Returns(basketItems);
+
+                _stockManager
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+                _basketManager
+                    .GetBasket(userName)
+                    .Returns(basketItems);
+
+                var invoice = _controller
+                    .CheckoutBasket(userName)
+                    .ShouldBeOfType<JsonResult>()
+                    .Value.ShouldBeOfType<Invoice>();
+
+                invoice.Total.ShouldBe(stock * price);
+                invoice.User.ShouldBe(userName);
+                invoice.Items.Count.ShouldBe(1);
+            }
+        }
     }
 }

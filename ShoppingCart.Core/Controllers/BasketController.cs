@@ -57,7 +57,6 @@ namespace ShoppingCart.Core.Controllers
             [FromRoute]string userId,
             [FromBody]List<BasketItem> products)
         {
-            // Validate
             foreach(var addToBasketItem in products)
             {
                 var product = _stockManager.GetStockItem(addToBasketItem.ProductId);
@@ -67,7 +66,6 @@ namespace ShoppingCart.Core.Controllers
                     return BadRequest("Not Enough Stock for item: " + product.Name);
             }
 
-            // Apply
             foreach(var item in products)
             {
                 _basketManager.AddItemToUserBasket(userId, item.ProductId, item.ItemCount);
@@ -95,7 +93,70 @@ namespace ShoppingCart.Core.Controllers
             var basket = _basketManager.GetBasket(userId);
             return Json(basket);
         }
-        
+
+
+        [HttpPut("api/{userId}/basket/checkout")]
+        public IActionResult CheckoutBasket(
+            [FromRoute]string userId)
+        {
+            var basket = _basketManager.GetBasket(userId);
+            var products = new List<StockItem>();
+
+            // Validate Capacity
+            foreach (var basketItem in basket)
+            {
+                var product = _stockManager.GetStockItem(basketItem.ProductId);
+                if (product == null)
+                    return BadRequest("Product not found: " + basketItem.ProductId);
+
+                if (!product.HasSufficientStockFor(basketItem.ItemCount))
+                    return BadRequest("Not Enough Stock for item: " + product.Name);
+
+                products.Add(product);
+            }
+
+
+            // Apply
+            foreach (var basketItem in basket)
+            {
+                _stockManager.RemoveStock(basketItem.ProductId, basketItem.ItemCount);
+            }
+
+            var invoiceItems = GenerateInvoiceItems(basket, products);
+            var invoice = GenerateInvoice(userId, basket, products);
+            return Json(invoice);
+        }
+
+        private static Invoice GenerateInvoice(string userId, List<BasketItem> basket, List<StockItem> products)
+        {
+            var invoiceItems = GenerateInvoiceItems(basket, products);
+
+            var invoice = new Invoice();
+            invoice.User = userId;
+            invoice.Items = invoiceItems;
+            invoice.Total = invoice
+                        .Items
+                        .Sum(i => i.Cost);
+            return invoice;
+        }
+
+        private static List<InvoiceItem> GenerateInvoiceItems(List<BasketItem> basket, List<StockItem> products)
+        {
+            return basket
+                .Select(b => new
+                {
+                    BasketItem = b,
+                    StockItem = products.Single(p => p.Id == b.ProductId)
+                })
+                .Select(i => new InvoiceItem()
+                {
+                    ProductName = i.StockItem.Name,
+                    Quantity = i.BasketItem.ItemCount,
+                    Cost = i.BasketItem.ItemCount * i.StockItem.Price
+                })
+                .ToList();
+        }
+
         private StockItem ResolveProduct(int? productId, string productName)
         {
             if (productId.HasValue)

@@ -44,7 +44,7 @@ namespace ShoppingCart.Core.Components
             item.Stock++;
         }
 
-        public bool RemoveStock(int productId)
+        public bool RemoveStock(int productId, int quantity = 1)
         {
             var item = GetStockItem(productId);
             if (item == null)
