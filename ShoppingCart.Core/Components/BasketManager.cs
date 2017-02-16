@@ -11,9 +11,7 @@ namespace ShoppingCart.Core.Components
     {
         private Dictionary<string, List<BasketItem>> baskets 
             = new Dictionary<string, List<BasketItem>>();
-
-
-
+        
         public List<BasketItem> GetBasket(string userId)
         {
             if (!baskets.ContainsKey(userId))

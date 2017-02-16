@@ -24,5 +24,36 @@ namespace ShoppingCart.Core.Components
         {
             return _stock;
         }
+
+        public StockItem GetStockItem(int stockItemId)
+        {
+            return _stock.SingleOrDefault(s => s.Id == stockItemId);
+        }
+
+        public StockItem GetStockItem(string stockName)
+        {
+            return _stock.SingleOrDefault(s => s.Name.ToLower() == stockName.ToLower());
+        }
+
+        public void IncrementItemCount(int productId)
+        {
+            var item = GetStockItem(productId);
+            if (item == null)
+                throw new KeyNotFoundException("Product not found: " + productId);
+
+            item.Stock++;
+        }
+
+        public void DecrementItemCount(int productId)
+        {
+            var item = GetStockItem(productId);
+            if (item == null)
+                return;
+
+            if (item.Stock == 0)
+                throw new ApplicationException("Stock cannot be reduced below 0.");
+
+            item.Stock--;
+        }
     }
 }

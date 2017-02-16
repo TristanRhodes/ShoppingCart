@@ -12,23 +12,128 @@ namespace ShoppingCart.Core.Components
 {
     public class StockManagerTests
     {
+        private IDataImporter _importer;
+        private StockManager _stockManager;
+
         [Test]
         public void ShouldGetStock()
         {
-            var stock = new List<StockItem>();
-            var importer = Substitute.For<IDataImporter>();
+            var stock = InitializeWithStock();
 
-            importer
-                .ImportStock()
-                .Returns(stock);
-
-            var stockManager = new StockManager(importer);
-
-            stockManager
+            _stockManager
                 .GetStock()
                 .ShouldBe(stock);
         }
+
+        [Test]
+        public void ShouldReturnItemWithMatchingIdWhenFound()
+        {
+            var stockId = 1;
+            var stockItem = new StockItem()
+            {
+                Id = stockId
+            };
+
+            var stock = InitializeWithStock(stockItem);
+
+            _stockManager
+                .GetStockItem(stockId)
+                .ShouldBe(stockItem);
+        }
+
+        [Test]
+        public void ShouldReturnItemMatchingNameWhenFound()
+        {
+            var stockName = "name";
+            var stockItem = new StockItem()
+            {
+                Name = stockName
+            };
+
+            var stock = InitializeWithStock(stockItem);
+
+            _stockManager
+                .GetStockItem(stockName)
+                .ShouldBe(stockItem);
+        }
+
+        [Test]
+        public void ShouldIncreaseStockCountOnIncrement()
+        {
+            var stockId = 1;
+            var stockLevel = 0;
+
+            var stockItem = new StockItem()
+            {
+                Id = stockId,
+                Stock = stockLevel
+            };
+
+            var stock = InitializeWithStock(stockItem);
+
+            _stockManager
+                .IncrementItemCount(stockId);
+
+            stockItem =_stockManager
+                .GetStockItem(stockId);
+
+            stockItem.Stock.ShouldBe(stockLevel + 1);
+        }
+
+        [Test]
+        public void ShouldDecreaseStockCountOnDecrement()
+        {
+            var stockId = 1;
+            var stockLevel = 1;
+
+            var stockItem = new StockItem()
+            {
+                Id = stockId,
+                Stock = stockLevel
+            };
+
+            var stock = InitializeWithStock(stockItem);
+
+            _stockManager
+                .DecrementItemCount(stockId);
+
+            stockItem = _stockManager
+                .GetStockItem(stockId);
+
+            stockItem.Stock.ShouldBe(stockLevel - 1);
+        }
+
+        [Test]
+        public void ShouldErrorWhenReducingStockBelowZero()
+        {
+            var stockId = 1;
+            var stockLevel = 0;
+
+            var stockItem = new StockItem()
+            {
+                Id = stockId,
+                Stock = stockLevel
+            };
+
+            var stock = InitializeWithStock(stockItem);
+
+            Should
+                .Throw<ApplicationException>(() => _stockManager.DecrementItemCount(stockId));
+        }
+
+        private List<StockItem> InitializeWithStock(params StockItem[] stock)
+        {
+            var items = new List<StockItem>();
+            items.AddRange(stock);
+
+            _importer = Substitute.For<IDataImporter>();
+            _importer
+                .ImportStock()
+                .Returns(items);
+
+            _stockManager = new StockManager(_importer);
+
+            return items;
+        }
     }
-
-
 }

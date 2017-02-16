@@ -10,5 +10,13 @@ namespace ShoppingCart.Core.Components
     public interface IStockManager
     {
         List<StockItem> GetStock();
+
+        StockItem GetStockItem(int stockItemId);
+
+        StockItem GetStockItem(string stockName);
+
+        void IncrementItemCount(int productId);
+
+        void DecrementItemCount(int productId);
     }
 }
