@@ -11,7 +11,7 @@ namespace ShoppingCart.Core.Tests
 {
     public static class AssertionExtensions
     {
-        public static void ShouldBeFullyPopulated(this DataItem item)
+        public static void ShouldBeFullyPopulated(this StockItem item)
         {
             item.Id.ShouldBeGreaterThan(0);
             item.Name.ShouldNotBeNull();

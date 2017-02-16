@@ -17,7 +17,7 @@ namespace ShoppingCart.Core.Tests.Components
             var dataFile = "TestData/example_data.csv";
             var dataImporter = new DataImporter(dataFile);
 
-            var data = dataImporter.Import();
+            var data = dataImporter.ImportStock();
 
             data.Count.ShouldBeGreaterThan(0);
             data.First().ShouldBeFullyPopulated();

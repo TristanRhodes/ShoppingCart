@@ -394,7 +394,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\DataImporter.cs" />
-    <Compile Include="Model\DataItem.cs" />
+    <Compile Include="Model\StockItem.cs" />
     <Compile Include="Components\IDataImporter.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

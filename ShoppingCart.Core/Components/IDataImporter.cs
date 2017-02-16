@@ -9,6 +9,6 @@ namespace ShoppingCart.Core.Components
 {
     public interface IDataImporter
     {
-        List<DataItem> Import();
+        List<StockItem> ImportStock();
     }
 }

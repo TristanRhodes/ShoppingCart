@@ -17,10 +17,10 @@ namespace ShoppingCart.Core.Components
             _dataFile = dataFile;
         }
 
-        public List<DataItem> Import()
+        public List<StockItem> ImportStock()
         {
             var content = File.ReadAllText(_dataFile);
-            var items = new List<DataItem>();
+            var items = new List<StockItem>();
 
             using (var stream = File.OpenRead(_dataFile))
             using (var reader = new StreamReader(stream))
@@ -39,13 +39,13 @@ namespace ShoppingCart.Core.Components
             return items;
         }
 
-        private static DataItem ReadRow(StreamReader reader)
+        private static StockItem ReadRow(StreamReader reader)
         {
             var parts = reader
                 .ReadLine()
                 .Split(',');
 
-            var item = new DataItem();
+            var item = new StockItem();
             item.Id = Convert.ToInt32(parts[0]);
             item.Name = parts[1];
             item.Description = parts[2];

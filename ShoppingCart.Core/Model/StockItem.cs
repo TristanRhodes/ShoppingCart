@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Model
 {
-    public class DataItem
+    public class StockItem
     {
         public int Id { get; set; }
         public string Name { get; set; }
