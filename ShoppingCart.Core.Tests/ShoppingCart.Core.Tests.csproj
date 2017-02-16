@@ -406,6 +406,7 @@
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Components\DataImporterTests.cs" />
+    <Compile Include="Components\StockManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
