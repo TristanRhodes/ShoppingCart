@@ -43,15 +43,20 @@ Solution composed of 4 projects
 * Console app. For a demo project, this was massive overkill, for learning .net core and playing with REST, it was fun.
 * Simplify the code, can probably drop a lot of the code and compact it into fewer classes.
 * Break down and clarify the Basket / Stock / Product relationship and put it into some kind of relational storage.
+* Creating Model library for sharing between specflow tests and main app.
 
 ## Overall
-Not really happy with how this turned out. Took too much time to achieve too little, and made it feel complicated. Will re-visit this in a few days and tackle it again.
+Not really happy with how this turned out. Took too much time to achieve too little, and made it feel complicated. Will probably re-visit this in a few days and tackle it again.
 
 ## To Run
 To Run the server, go to the [ShoppingCart](https://github.com/TristanRhodes/ShoppingCart/tree/master/ShoppingCart) folder and run the following powershell command: 
 
+> dotnet restore
 > $env:ASPNETCORE_URLS="https://*:localhost:51998" ; dotnet run
 
+*NOTE: Previous step does not work, dotnet is unable to resolve local dependencies. Could only get the restore / build part working via VisualStudio. Seems to be same behavior as [this issue](https://github.com/dotnet/cli/issues/3199).*
+
 To run the acceptance tests, run the following command from the [ShoppingCart.Acceptance.Tests](https://github.com/TristanRhodes/ShoppingCart/tree/master/ShoppingCart.Acceptance.Tests) folder and run the following command:
-> TODO
+
+> Pending. To run the specflow tests, start the service using the previous command and run from Visual Studio.
 
