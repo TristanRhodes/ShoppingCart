@@ -16,6 +16,23 @@ Solution composed of 4 projects
 * ShoppingCart.Core - Controllers, Models and Services.
 * ShoppingCart.Core.Tests - Unit tests for Core library.
 
+## Endpoints
+The API has the following REST endpoints to support basket functionality:
+* GET /heartbeat - HealthCheck endpoint
+* GET /api/stock - Get List of available stock
+* GET /api/{userId}/basket - Get user basket
+* PUT /api/{userId}/basket/add - Add Item to basket
+* POST /api/{userId}/basket/add - Bulk add items to basket
+* PUT /api/{userId}/basket/remove - Add Item from basket
+* POST /api/{userId}/basket/checkout - Checkout basket, deduct stock
+
+## Packages
+* Shouldly
+* NUnit
+* Specflow
+* NSubstitute
+* .Net Core
+
 ## What went well
 * Learned a lot about the fascinating variety of weird behavior in .net core.
 * Actually enjoyed using the .net core setup once I got it working with NCrunch.
@@ -60,5 +77,5 @@ To Run the server, go to the [ShoppingCart](https://github.com/TristanRhodes/Sho
 
 To run the acceptance tests, run the following command from the [ShoppingCart.Acceptance.Tests](https://github.com/TristanRhodes/ShoppingCart/tree/master/ShoppingCart.Acceptance.Tests) folder and run the following command:
 
-> Pending. To run the specflow tests, start the service using the previous command and run from Visual Studio.
+> Pending. To run the specflow tests, start the service using the previous command and run from Visual Studio or via the NUnit test runner.
 
