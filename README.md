@@ -6,7 +6,7 @@
 
 ## Assumptions
 * Stock seed data is defined by the csv.
-* Went with in memory storage for proof of concept.
+* Went with in memory storage for proof of concept. (Mistake)
 * Aiming for a HATEOS API with Specflow tests on top (Failed)
 
 ## Structure
@@ -38,6 +38,7 @@ Solution composed of 4 projects
 * Add some kind of automatic build to the repo.
 * Refactor logic out of controller and seperate from web concerns.
 * Make the Speflow test url configurable.
+* Fix errors with CLI setup of project.
 
 ## Do differently
 * Console app. For a demo project, this was massive overkill, for learning .net core and playing with REST, it was fun.
@@ -52,6 +53,7 @@ Not really happy with how this turned out. Took too much time to achieve too lit
 To Run the server, go to the [ShoppingCart](https://github.com/TristanRhodes/ShoppingCart/tree/master/ShoppingCart) folder and run the following powershell command: 
 
 > dotnet restore
+
 > $env:ASPNETCORE_URLS="https://*:localhost:51998" ; dotnet run
 
 *NOTE: Previous step does not work, dotnet is unable to resolve local dependencies. Could only get the restore / build part working via VisualStudio. Seems to be same behavior as [this issue](https://github.com/dotnet/cli/issues/3199).*
