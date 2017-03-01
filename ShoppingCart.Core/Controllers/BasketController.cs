@@ -11,14 +11,14 @@ namespace ShoppingCart.Core.Controllers
 {
     public class BasketController : Controller
     {
-        private IBasketManager _basketManager;
+        private IBasketRepository _basketRepository;
         private ICoordinator _coordinator;
 
         public BasketController(
-            IBasketManager basketManager,
+            IBasketRepository basketRepository,
             ICoordinator coordinator)
         {
-            _basketManager = basketManager;
+            _basketRepository = basketRepository;
             _coordinator = coordinator;
         }
 
@@ -26,7 +26,7 @@ namespace ShoppingCart.Core.Controllers
         public IActionResult GetBasket(
             [FromRoute]string userId)
         {
-            return Json(_basketManager.GetBasket(userId));
+            return Json(_basketRepository.GetBasket(userId));
         }
 
         [HttpPut("api/{userId}/basket/add")]

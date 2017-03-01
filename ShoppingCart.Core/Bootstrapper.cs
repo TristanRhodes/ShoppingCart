@@ -18,8 +18,8 @@ namespace ShoppingCart.Core
 
         public static IServiceCollection AddShoppingCartComponents(this IServiceCollection services)
         {
-            services.AddSingleton<IBasketManager, BasketManager>();
-            services.AddSingleton<IStockManager, StockManager>();
+            services.AddSingleton<IBasketRepository, BasketRepository>();
+            services.AddSingleton<IStockRepository, StockRepository>();
             services.AddSingleton<ICoordinator, Coordinator>();
 
             return services;

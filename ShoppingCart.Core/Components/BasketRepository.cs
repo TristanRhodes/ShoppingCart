@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Components
 {
-    public class BasketManager : IBasketManager
+    public class BasketRepository : IBasketRepository
     {
         private Dictionary<string, List<BasketItem>> baskets 
             = new Dictionary<string, List<BasketItem>>();

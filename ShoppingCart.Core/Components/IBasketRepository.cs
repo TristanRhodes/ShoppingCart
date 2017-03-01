@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Components
 {
-    public interface IBasketManager
+    public interface IBasketRepository
     {
         List<BasketItem> GetBasket(string userId);
 

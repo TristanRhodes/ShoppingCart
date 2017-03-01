@@ -10,11 +10,11 @@ namespace ShoppingCart.Core.Components
     /// <summary>
     /// In memory stock management class. Should be loaded as singleton.
     /// </summary>
-    public class StockManager : IStockManager
+    public class StockRepository : IStockRepository
     {
         private List<StockItem> _stock;
 
-        public StockManager(IDataImporter importer)
+        public StockRepository(IDataImporter importer)
         {
             _stock = importer
                 .ImportStock();

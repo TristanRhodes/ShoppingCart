@@ -14,14 +14,14 @@ namespace ShoppingCart.Core.Tests.Components
     public class StockManagerTests
     {
         private IDataImporter _importer;
-        private StockManager _stockManager;
+        private StockRepository _stockRepository;
 
         [Test]
         public void ShouldGetStock()
         {
             var stock = InitializeWithStock();
 
-            _stockManager
+            _stockRepository
                 .GetStock()
                 .ShouldBe(stock);
         }
@@ -37,7 +37,7 @@ namespace ShoppingCart.Core.Tests.Components
 
             var stock = InitializeWithStock(stockItem);
 
-            _stockManager
+            _stockRepository
                 .GetStockItem(stockId)
                 .ShouldBe(stockItem);
         }
@@ -53,7 +53,7 @@ namespace ShoppingCart.Core.Tests.Components
 
             var stock = InitializeWithStock(stockItem);
 
-            _stockManager
+            _stockRepository
                 .GetStockItem(stockName)
                 .ShouldBe(stockItem);
         }
@@ -72,10 +72,10 @@ namespace ShoppingCart.Core.Tests.Components
 
             var stock = InitializeWithStock(stockItem);
 
-            _stockManager
+            _stockRepository
                 .AddStock(stockId);
 
-            stockItem =_stockManager
+            stockItem =_stockRepository
                 .GetStockItem(stockId);
 
             stockItem.Stock.ShouldBe(stockLevel + 1);
@@ -95,11 +95,11 @@ namespace ShoppingCart.Core.Tests.Components
 
             var stock = InitializeWithStock(stockItem);
 
-            _stockManager
+            _stockRepository
                 .RemoveStock(stockId)
                 .ShouldBeTrue();
 
-            stockItem = _stockManager
+            stockItem = _stockRepository
                 .GetStockItem(stockId);
 
             stockItem.Stock.ShouldBe(stockLevel - 1);
@@ -118,7 +118,7 @@ namespace ShoppingCart.Core.Tests.Components
             };
 
             var stock = InitializeWithStock(stockItem);
-            _stockManager
+            _stockRepository
                 .RemoveStock(stockId)
                 .ShouldBeFalse();
         }
@@ -133,7 +133,7 @@ namespace ShoppingCart.Core.Tests.Components
                 .ImportStock()
                 .Returns(items);
 
-            _stockManager = new StockManager(_importer);
+            _stockRepository = new StockRepository(_importer);
 
             return items;
         }

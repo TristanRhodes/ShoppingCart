@@ -11,18 +11,18 @@ namespace ShoppingCart.Core.Tests.Components
 {
     public class BasketManagerTests 
     {
-        private BasketManager _basketManager;
+        private BasketRepository _basketRepository;
 
         [SetUp]
         public void Setup()
         {
-            _basketManager = new BasketManager();
+            _basketRepository = new BasketRepository();
         }
 
         [Test]
         public void ShouldReturnEmptyBasketForNewUser()
         {
-            var basket = _basketManager.GetBasket("User");
+            var basket = _basketRepository.GetBasket("User");
 
             basket.ShouldNotBeNull();
             basket.Count.ShouldBe(0);
@@ -34,9 +34,9 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager.AddItemToUserBasket(user, productId);
+            _basketRepository.AddItemToUserBasket(user, productId);
 
-            var basket = _basketManager.GetBasket(user);
+            var basket = _basketRepository.GetBasket(user);
 
             basket.ShouldNotBeNull();
             basket.Count.ShouldBe(1);
@@ -53,10 +53,10 @@ namespace ShoppingCart.Core.Tests.Components
 
             for (int i = 0; i < count; i++)
             {
-                _basketManager.AddItemToUserBasket(user, productId);
+                _basketRepository.AddItemToUserBasket(user, productId);
             }
 
-            var basket = _basketManager.GetBasket(user);
+            var basket = _basketRepository.GetBasket(user);
 
             basket.ShouldNotBeNull();
             basket.Count.ShouldBe(1);
@@ -70,11 +70,11 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager
+            _basketRepository
                 .RemoveItemFromUserBasket(user, productId)
                 .ShouldBeFalse();
 
-            var basket = _basketManager.GetBasket(user);
+            var basket = _basketRepository.GetBasket(user);
             basket.ShouldBeEmpty();
         }
 
@@ -84,12 +84,12 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            _basketManager.AddItemToUserBasket(user, productId);
-            _basketManager
+            _basketRepository.AddItemToUserBasket(user, productId);
+            _basketRepository
                 .RemoveItemFromUserBasket(user, productId)
                 .ShouldBeTrue();
 
-            var basket = _basketManager.GetBasket(user);
+            var basket = _basketRepository.GetBasket(user);
             basket.ShouldBeEmpty();
         }
 
@@ -99,7 +99,7 @@ namespace ShoppingCart.Core.Tests.Components
             var user = "user";
             var productId = 1;
 
-            var item = _basketManager
+            var item = _basketRepository
                 .GetBasketItem(user, productId);
 
             item.ProductId.ShouldBe(productId);

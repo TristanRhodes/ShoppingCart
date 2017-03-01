@@ -11,17 +11,17 @@ namespace ShoppingCart.Core.Controllers
     [Route("api/[controller]")]
     public class StockController : Controller
     {
-        private IStockManager _stockManager;
+        private IStockRepository _stockRepository;
 
-        public StockController(IStockManager stockManager)
+        public StockController(IStockRepository stockRepository)
         {
-            _stockManager = stockManager;
+            _stockRepository = stockRepository;
         }
 
         [HttpGet]
         public IActionResult GetStock()
         {
-            var stock = _stockManager.GetStock();
+            var stock = _stockRepository.GetStock();
 
             if (stock.Count == 0)
                 return NoContent();

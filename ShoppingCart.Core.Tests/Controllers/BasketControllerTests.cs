@@ -17,8 +17,8 @@ namespace ShoppingCart.Core.Tests.Controllers
     {
         public abstract class BasketTestBase
         {
-            protected IBasketManager _basketManager;
-            protected IStockManager _stockManager;
+            protected IBasketRepository _basketRepository;
+            protected IStockRepository _stockRepository;
 
             protected BasketController _controller;
             protected Coordinator _coordinator;
@@ -26,11 +26,11 @@ namespace ShoppingCart.Core.Tests.Controllers
             [SetUp]
             public void Setup()
             {
-                _stockManager = Substitute.For<IStockManager>();
-                _basketManager = Substitute.For<IBasketManager>();
-                _coordinator = new Coordinator(_stockManager, _basketManager);
+                _stockRepository = Substitute.For<IStockRepository>();
+                _basketRepository = Substitute.For<IBasketRepository>();
+                _coordinator = new Coordinator(_stockRepository, _basketRepository);
 
-                _controller = new BasketController(_basketManager, _coordinator);
+                _controller = new BasketController(_basketRepository, _coordinator);
             }
         }
 
@@ -81,11 +81,11 @@ namespace ShoppingCart.Core.Tests.Controllers
                     ItemCount = 0
                 };
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
 
-                _basketManager
+                _basketRepository
                     .GetBasketItem(userName, productId)
                     .Returns(basketItem);
 
@@ -112,15 +112,15 @@ namespace ShoppingCart.Core.Tests.Controllers
                     ItemCount = 1
                 };
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
 
-                _basketManager
+                _basketRepository
                     .GetBasketItem(userName, productId)
                     .Returns(basketItem);
 
-                _basketManager
+                _basketRepository
                     .GetBasket(userName)
                     .Returns(new List<BasketItem>());
 
@@ -128,7 +128,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .AddToBasket(userName, productId)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketManager
+                _basketRepository
                     .Received()
                     .AddItemToUserBasket(userName, productId);
             }
@@ -181,15 +181,15 @@ namespace ShoppingCart.Core.Tests.Controllers
                     ItemCount = 1
                 };
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
 
-                _basketManager
+                _basketRepository
                     .GetBasketItem(userName, productId)
                     .Returns(basketItem);
 
-                _basketManager
+                _basketRepository
                     .GetBasket(userName)
                     .Returns(new List<BasketItem>());
 
@@ -197,7 +197,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .RemoveFromBasket(userName, productId)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketManager
+                _basketRepository
                     .Received()
                     .RemoveItemFromUserBasket(userName, productId);
             }
@@ -228,11 +228,11 @@ namespace ShoppingCart.Core.Tests.Controllers
                     new BasketItem() { ProductId = 1, ItemCount = 2 }
                 };
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
 
-                _basketManager
+                _basketRepository
                     .GetBasketItem(userName, productId)
                     .Returns(basketItem);
 
@@ -279,19 +279,19 @@ namespace ShoppingCart.Core.Tests.Controllers
                     new BasketItem() { ProductId = productId2, ItemCount = itemsToAdd }
                 };
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId1)
                     .Returns(stockItem1);
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId2)
                     .Returns(stockItem2);
 
-                _basketManager
+                _basketRepository
                     .GetBasketItem(userName, productId1)
                     .Returns(basketItem1);
 
-                _basketManager
+                _basketRepository
                     .GetBasketItem(userName, productId2)
                     .Returns(basketItem2);
 
@@ -299,11 +299,11 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .BulkAddToBasket(userName, productsToAdd)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketManager
+                _basketRepository
                     .Received()
                     .AddItemToUserBasket(userName, productId1, itemsToAdd);
 
-                _basketManager
+                _basketRepository
                     .Received()
                     .AddItemToUserBasket(userName, productId2, itemsToAdd);
             }
@@ -322,7 +322,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     new BasketItem() { ProductId = productId, ItemCount = 1}
                 };
 
-                _basketManager
+                _basketRepository
                     .GetBasket(userName)
                     .Returns(basketItems);
 
@@ -352,11 +352,11 @@ namespace ShoppingCart.Core.Tests.Controllers
                     new BasketItem() { ProductId = productId, ItemCount = 1}
                 };
 
-                _basketManager
+                _basketRepository
                     .GetBasket(userName)
                     .Returns(basketItems);
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
 
@@ -389,14 +389,14 @@ namespace ShoppingCart.Core.Tests.Controllers
                     new BasketItem() { ProductId = productId, ItemCount = stock}
                 };
 
-                _basketManager
+                _basketRepository
                     .GetBasket(userName)
                     .Returns(basketItems);
 
-                _stockManager
+                _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
-                _basketManager
+                _basketRepository
                     .GetBasket(userName)
                     .Returns(basketItems);
 

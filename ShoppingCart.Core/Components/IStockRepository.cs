@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Components
 {
-    public interface IStockManager
+    public interface IStockRepository
     {
         List<StockItem> GetStock();
 

@@ -29,15 +29,15 @@ namespace ShoppingCart.Core.Components
 
     public class Coordinator : ICoordinator
     {
-        private IStockManager _stockManager;
-        private IBasketManager _basketManager;
+        private IStockRepository _stockRepository;
+        private IBasketRepository _basketRepository;
 
         public Coordinator(
-            IStockManager stockManager,
-            IBasketManager basketManager)
+            IStockRepository stockRepository,
+            IBasketRepository basketRepository)
         {
-            _stockManager = stockManager;
-            _basketManager = basketManager;
+            _stockRepository = stockRepository;
+            _basketRepository = basketRepository;
         }
 
         public List<BasketItem> AddItemsToBasket(
@@ -46,10 +46,10 @@ namespace ShoppingCart.Core.Components
         {
             foreach (var item in products)
             {
-                _basketManager.AddItemToUserBasket(userId, item.ProductId, item.ItemCount);
+                _basketRepository.AddItemToUserBasket(userId, item.ProductId, item.ItemCount);
             }
 
-            return _basketManager.GetBasket(userId);
+            return _basketRepository.GetBasket(userId);
         }
 
         public AvailabilityCheckResults CanAddItemsToBasketCheck(
@@ -60,7 +60,7 @@ namespace ShoppingCart.Core.Components
 
             foreach (var addToBasketItem in products)
             {
-                var product = _stockManager.GetStockItem(addToBasketItem.ProductId);
+                var product = _stockRepository.GetStockItem(addToBasketItem.ProductId);
                 if (product == null)
                 {
                     results.Available = false;
@@ -68,7 +68,7 @@ namespace ShoppingCart.Core.Components
                     continue;
                 }
 
-                var basketItem = _basketManager.GetBasketItem(userId, addToBasketItem.ProductId);
+                var basketItem = _basketRepository.GetBasketItem(userId, addToBasketItem.ProductId);
                 if (!product.HasSufficientStockFor(basketItem.ItemCount + addToBasketItem.ItemCount))
                 {
                     results.Available = false;
@@ -86,12 +86,12 @@ namespace ShoppingCart.Core.Components
 
             var results = new StockAvailabilityCheckResults();
 
-            var basket = _basketManager.GetBasket(userId);
+            var basket = _basketRepository.GetBasket(userId);
             var products = new List<StockItem>();
 
             foreach (var basketItem in basket)
             {
-                var product = _stockManager.GetStockItem(basketItem.ProductId);
+                var product = _stockRepository.GetStockItem(basketItem.ProductId);
                 if (product == null)
                 {
                     results.Available = false;
@@ -117,11 +117,11 @@ namespace ShoppingCart.Core.Components
 
         public Invoice CheckoutBasket(string userId)
         {
-            var basket = _basketManager.GetBasket(userId);
+            var basket = _basketRepository.GetBasket(userId);
 
             foreach (var basketItem in basket)
             {
-                _stockManager.RemoveStock(basketItem.ProductId, basketItem.ItemCount);
+                _stockRepository.RemoveStock(basketItem.ProductId, basketItem.ItemCount);
             }
 
             return GenerateInvoice(userId, basket);
@@ -130,9 +130,9 @@ namespace ShoppingCart.Core.Components
         public StockItem GetStockItem(int? productId, string productName)
         {
             if (productId.HasValue)
-                return _stockManager.GetStockItem(productId.Value);
+                return _stockRepository.GetStockItem(productId.Value);
             else
-                return _stockManager.GetStockItem(productName);
+                return _stockRepository.GetStockItem(productName);
         }
 
         private Invoice GenerateInvoice(string userId, List<BasketItem> basket, List<StockItem> products = null)
@@ -167,22 +167,22 @@ namespace ShoppingCart.Core.Components
 
         public bool CanAddItemToBasket(string userId, int productId)
         {
-            var stockItem = _stockManager.GetStockItem(productId);
-            var basketItem = _basketManager.GetBasketItem(userId, productId);
+            var stockItem = _stockRepository.GetStockItem(productId);
+            var basketItem = _basketRepository.GetBasketItem(userId, productId);
 
             return stockItem.HasSufficientStockFor(basketItem.ItemCount + 1);
         }
 
         public List<BasketItem> AddItemToBasket(string userId, int productId)
         {
-            _basketManager.AddItemToUserBasket(userId, productId);
-            return _basketManager.GetBasket(userId);
+            _basketRepository.AddItemToUserBasket(userId, productId);
+            return _basketRepository.GetBasket(userId);
         }
 
         public List<BasketItem> RemoveItemFromBasket(string userId, int productId)
         {
-            _basketManager.RemoveItemFromUserBasket(userId, productId);
-            return _basketManager.GetBasket(userId);
+            _basketRepository.RemoveItemFromUserBasket(userId, productId);
+            return _basketRepository.GetBasket(userId);
         }
     }
 
