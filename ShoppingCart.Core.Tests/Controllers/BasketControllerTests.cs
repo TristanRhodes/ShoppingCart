@@ -21,14 +21,16 @@ namespace ShoppingCart.Core.Tests.Controllers
             protected IStockManager _stockManager;
 
             protected BasketController _controller;
+            protected Coordinator _coordinator;
 
             [SetUp]
             public void Setup()
             {
                 _stockManager = Substitute.For<IStockManager>();
                 _basketManager = Substitute.For<IBasketManager>();
+                _coordinator = new Coordinator(_stockManager, _basketManager);
 
-                _controller = new BasketController(_stockManager, _basketManager);
+                _controller = new BasketController(_basketManager, _coordinator);
             }
         }
 
@@ -328,7 +330,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .CheckoutBasket(userName)
                     .ShouldBeOfType<BadRequestObjectResult>()
                     .Value.ShouldBeOfType<string>()
-                    .ShouldBe("Product not found: " + productId);
+                    .ShouldBe("Products not found: " + productId);
             }
 
             [Test]
@@ -362,7 +364,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .CheckoutBasket(userName)
                     .ShouldBeOfType<BadRequestObjectResult>()
                     .Value.ShouldBeOfType<string>()
-                    .ShouldBe("Not Enough Stock for item: " + productName);
+                    .ShouldBe("Not Enough Stock for item(s): " + productName);
             }
             
             [Test]

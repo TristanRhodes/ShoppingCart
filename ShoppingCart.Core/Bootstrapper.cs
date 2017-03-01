@@ -20,6 +20,8 @@ namespace ShoppingCart.Core
         {
             services.AddSingleton<IBasketManager, BasketManager>();
             services.AddSingleton<IStockManager, StockManager>();
+            services.AddSingleton<ICoordinator, Coordinator>();
+
             return services;
         }
     }
