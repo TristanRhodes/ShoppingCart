@@ -1,39 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ShoppingCart.Core.Model;
-using System;
+﻿using ShoppingCart.Core.Model;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ShoppingCart.Core.Components
 {
-    public interface ICoordinator
-    {
-        List<BasketItem> AddItemsToBasket(string userId, List<BasketItem> products);
-
-        AvailabilityCheckResults CanAddItemsToBasketCheck(string userId, List<BasketItem> products);
-
-
-        bool CanAddItemToBasket(string userId, int productId);
-
-        List<BasketItem> AddItemToBasket(string userId, int id);
-
-
-        List<BasketItem> RemoveItemFromBasket(string userId, int productId);
-
-
-        StockAvailabilityCheckResults CanCheckoutBasketCheck(string userId);
-
-        Invoice CheckoutBasket(string userId);
-    }
-
-    public class Coordinator : ICoordinator
+    public class BasketManager : IBasketManager
     {
         private IStockRepository _stockRepository;
         private IBasketRepository _basketRepository;
 
-        public Coordinator(
+        public BasketManager(
             IStockRepository stockRepository,
             IBasketRepository basketRepository)
         {
@@ -42,7 +19,7 @@ namespace ShoppingCart.Core.Components
         }
 
         public List<BasketItem> AddItemsToBasket(
-            string userId, 
+            string userId,
             List<BasketItem> products)
         {
             foreach (var item in products)
@@ -81,14 +58,13 @@ namespace ShoppingCart.Core.Components
             return results;
         }
 
-        public StockAvailabilityCheckResults CanCheckoutBasketCheck(
+        public AvailabilityCheckResults CanCheckoutBasketCheck(
             string userId)
         {
 
-            var results = new StockAvailabilityCheckResults();
+            var results = new AvailabilityCheckResults();
 
             var basket = _basketRepository.GetBasket(userId);
-            var products = new List<StockItem>();
 
             foreach (var basketItem in basket)
             {
@@ -106,12 +82,7 @@ namespace ShoppingCart.Core.Components
                     results.ProductsNotAvailable.Add(product.Name);
                     continue;
                 }
-
-                products.Add(product);
             }
-
-            if (results.Available)
-                results.Stock = products;
 
             return results;
         }
@@ -161,7 +132,7 @@ namespace ShoppingCart.Core.Components
             _basketRepository.RemoveItemFromUserBasket(userId, productId);
             return _basketRepository.GetBasket(userId);
         }
-        
+
         private List<InvoiceItem> GenerateInvoiceItems(List<BasketItem> basket, List<StockItem> products)
         {
             return basket
@@ -185,45 +156,7 @@ namespace ShoppingCart.Core.Components
                 .Select(b => b.ProductId)
                 .ToArray();
 
-            return GetProducts(ids);
-        }
-
-        private List<StockItem> GetProducts(params int[] productIds)
-        {
-            return productIds
-                .Select(id => _stockRepository.GetStockItem(id))
-                .ToList();
-        }
-    }
-
-    public class StockAvailabilityCheckResults : AvailabilityCheckResults
-    {
-        public List<StockItem> Stock { get; set; }
-    }
-
-    public class AvailabilityCheckResults
-    {
-        public AvailabilityCheckResults()
-        {
-            ProductsNotFound = new List<int>();
-            ProductsNotAvailable = new List<string>();
-            Available = true;
-        }
-
-        public bool Available { get; set; }
-
-        public List<int> ProductsNotFound { get; set; }
-
-        public List<string> ProductsNotAvailable { get; set; }
-
-        public bool HasNotFoundProducts
-        {
-            get { return !Available && ProductsNotFound.Count > 0; }
-        }
-
-        public bool HasUnavailableProducts
-        {
-            get { return !Available && ProductsNotAvailable.Count > 0; }
+            return _stockRepository.GetProducts(ids);
         }
     }
 }

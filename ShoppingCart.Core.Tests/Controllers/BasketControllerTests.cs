@@ -21,14 +21,14 @@ namespace ShoppingCart.Core.Tests.Controllers
             protected IStockRepository _stockRepository;
 
             protected BasketController _controller;
-            protected Coordinator _coordinator;
+            protected BasketManager _coordinator;
 
             [SetUp]
             public void Setup()
             {
                 _stockRepository = Substitute.For<IStockRepository>();
                 _basketRepository = Substitute.For<IBasketRepository>();
-                _coordinator = new Coordinator(_stockRepository, _basketRepository);
+                _coordinator = new BasketManager(_stockRepository, _basketRepository);
 
                 _controller = new BasketController(_stockRepository, _basketRepository, _coordinator);
             }

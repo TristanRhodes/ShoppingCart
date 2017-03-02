@@ -20,7 +20,7 @@ namespace ShoppingCart.Core
         {
             services.AddSingleton<IBasketRepository, BasketRepository>();
             services.AddSingleton<IStockRepository, StockRepository>();
-            services.AddSingleton<ICoordinator, Coordinator>();
+            services.AddSingleton<IBasketManager, BasketManager>();
 
             return services;
         }

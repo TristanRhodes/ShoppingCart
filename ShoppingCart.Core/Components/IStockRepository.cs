@@ -29,6 +29,13 @@ namespace ShoppingCart.Core.Components
             else
                 return repository.GetStockItem(productName);
         }
+
+        public static List<StockItem> GetProducts(this IStockRepository repository, params int[] productIds)
+        {
+            return productIds
+                .Select(id => repository.GetStockItem(id))
+                .ToList();
+        }
     }
 
 }

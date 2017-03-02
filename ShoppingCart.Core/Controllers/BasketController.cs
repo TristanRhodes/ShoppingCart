@@ -10,12 +10,12 @@ namespace ShoppingCart.Core.Controllers
     {
         private IStockRepository _stockRepository;
         private IBasketRepository _basketRepository;
-        private ICoordinator _coordinator;
+        private IBasketManager _coordinator;
 
         public BasketController(
             IStockRepository stockRepository,
             IBasketRepository basketRepository,
-            ICoordinator coordinator)
+            IBasketManager coordinator)
         {
             _stockRepository = stockRepository;
             _basketRepository = basketRepository;
@@ -83,7 +83,6 @@ namespace ShoppingCart.Core.Controllers
             return Json(basket);
         }
 
-
         [HttpPut("api/{userId}/basket/checkout")]
         public IActionResult CheckoutBasket(
             [FromRoute]string userId)
@@ -98,7 +97,6 @@ namespace ShoppingCart.Core.Controllers
             var invoice = _coordinator.CheckoutBasket(userId);
             return Json(invoice);
         }
-
 
         private static bool HasInvalidProductIdentifiers(int? productId, string productName)
         {

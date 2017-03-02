@@ -419,6 +419,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ShoppingCart.Core.Model\ShoppingCart.Core.Model.csproj">
+      <Project>{daaf74b0-40d8-42b5-b426-2b13c2938b92}</Project>
+      <Name>ShoppingCart.Core.Model</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShoppingCart.Core\ShoppingCart.Core.csproj">
       <Project>{e2f2db57-fb38-4f2b-aa20-7b9424976b49}</Project>
       <Name>ShoppingCart.Core</Name>

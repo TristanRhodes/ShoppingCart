@@ -394,23 +394,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Components\BasketManager.cs" />
     <Compile Include="Components\BasketRepository.cs" />
     <Compile Include="Components\DataImporter.cs" />
     <Compile Include="Components\IBasketRepository.cs" />
-    <Compile Include="Components\ICoordinator.cs" />
+    <Compile Include="Components\IBasketManager.cs" />
     <Compile Include="Components\IStockRepository.cs" />
     <Compile Include="Components\StockRepository.cs" />
     <Compile Include="Controllers\BasketController.cs" />
     <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Controllers\StockController.cs" />
-    <Compile Include="Model\BasketItem.cs" />
-    <Compile Include="Model\Invoice.cs" />
-    <Compile Include="Model\InvoiceItem.cs" />
-    <Compile Include="Model\StockItem.cs" />
     <Compile Include="Components\IDataImporter.cs" />
+    <Compile Include="Model\AvailabilityCheckResults.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ShoppingCart.Core.Model\ShoppingCart.Core.Model.csproj">
+      <Project>{daaf74b0-40d8-42b5-b426-2b13c2938b92}</Project>
+      <Name>ShoppingCart.Core.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
