@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using ShoppingCart.Core.Model;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,21 +28,21 @@ namespace ShoppingCart.Acceptance.Tests.Steps
             }
         }
 
-        public List<dynamic> StockData
+        public List<StockItem> StockData
         {
-            get { return (List<dynamic>)ScenarioContext.Current["StockData"]; }
+            get { return (List<StockItem>)ScenarioContext.Current["StockData"]; }
             set { ScenarioContext.Current["StockData"] = value; }
         }
 
-        public List<dynamic> Basket
+        public List<BasketItem> Basket
         {
             get { return (dynamic)ScenarioContext.Current["Basket"]; }
             set { ScenarioContext.Current["Basket"] = value; }
         }
 
-        public dynamic StockItem
+        public StockItem StockItem
         {
-            get { return (dynamic)ScenarioContext.Current["StockItem"]; }
+            get { return (StockItem)ScenarioContext.Current["StockItem"]; }
             set { ScenarioContext.Current["StockItem"] = value; }
         }
 
@@ -55,7 +56,7 @@ namespace ShoppingCart.Acceptance.Tests.Steps
         public void GivenTheServiceIsRunning()
         {
             var response = _client
-                .GetAsync("heartbeat")
+                .GetAsync("diagnostics/heartbeat")
                 .Result;
 
             response
@@ -76,7 +77,7 @@ namespace ShoppingCart.Acceptance.Tests.Steps
 
             StockData = response
                 .Content
-                .ReadAsAsync<List<dynamic>>()
+                .ReadAsAsync<List<StockItem>>()
                 .Result;
         }
 
@@ -90,8 +91,8 @@ namespace ShoppingCart.Acceptance.Tests.Steps
         [When(@"I add a stocked item to a users basket")]
         public void WhenIAddAStockedItemToAUsersBasket()
         {
-            StockItem = StockData.First(s => s.stock > 0);
-            var url = string.Format("api/{0}/basket/add?productId={1}", UserName, (int)StockItem.id);
+            StockItem = StockData.First(s => s.Stock > 0);
+            var url = string.Format("api/{0}/basket/add?productId={1}", UserName, StockItem.Id);
 
             var response = _client
                 .PutAsync(url, null)
@@ -103,7 +104,7 @@ namespace ShoppingCart.Acceptance.Tests.Steps
 
             Basket = response
                 .Content
-                .ReadAsAsync<List<dynamic>>()
+                .ReadAsAsync<List<BasketItem>>()
                 .Result;
         }
 
@@ -113,8 +114,8 @@ namespace ShoppingCart.Acceptance.Tests.Steps
             Basket.Count.ShouldBeGreaterThan(0);
 
             var basketItem = Basket.First();
-            ((int)basketItem.productId).ShouldBe((int)StockItem.id);
-            ((int)basketItem.itemCount).ShouldBe(1);
+            basketItem.ProductId.ShouldBe(StockItem.Id);
+            basketItem.ItemCount.ShouldBe(1);
         }
 
         [When(@"I request a users basket")]
@@ -132,7 +133,7 @@ namespace ShoppingCart.Acceptance.Tests.Steps
 
             Basket = response
                 .Content
-                .ReadAsAsync<List<dynamic>>()
+                .ReadAsAsync<List<BasketItem>>()
                 .Result;
         }
     }

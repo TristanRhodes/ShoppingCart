@@ -402,7 +402,7 @@
     <Compile Include="Components\IStockRepository.cs" />
     <Compile Include="Components\StockRepository.cs" />
     <Compile Include="Controllers\BasketController.cs" />
-    <Compile Include="Controllers\HealthCheckController.cs" />
+    <Compile Include="Controllers\DiagnosticsController.cs" />
     <Compile Include="Controllers\StockController.cs" />
     <Compile Include="Components\IDataImporter.cs" />
     <Compile Include="Model\AvailabilityCheckResults.cs" />

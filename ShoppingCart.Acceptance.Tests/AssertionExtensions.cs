@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using ShoppingCart.Core.Model;
+using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,13 @@ namespace ShoppingCart.Acceptance.Tests
 {
     public static class AssertionExtensions
     {
-        public static void ShouldBeFullyPopulatedStockData(dynamic stockData)
+        public static void ShouldBeFullyPopulatedStockData(StockItem stockItem)
         {
-            ((int?)stockData.id).ShouldNotBeNull();
-            ((string)stockData.name).ShouldNotBeNullOrEmpty();
-            ((string)stockData.description).ShouldNotBeNullOrEmpty();
-            ((int?)stockData.stock).ShouldNotBeNull();
-            ((decimal?)stockData.price).ShouldNotBeNull();
+            stockItem.Id.ShouldNotBeNull();
+            stockItem.Name.ShouldNotBeNullOrEmpty();
+            stockItem.Description.ShouldNotBeNullOrEmpty();
+            stockItem.Stock.ShouldNotBeNull();
+            stockItem.Price.ShouldNotBeNull();
         }
     }
 }

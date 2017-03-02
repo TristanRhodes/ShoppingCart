@@ -7,11 +7,21 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Controllers
 {
-    public class HealthCheckController : Controller
+    public class DiagnosticsController : Controller
     {
-        [Route("heartbeat")]
+        [Route("diagnostics/heartbeat")]
         public IActionResult Heartbeat()
         {
+            return Ok();
+        }
+
+        [Route("diagnostics/recycle")]
+        public IActionResult Recycle()
+        {
+            //TODO: Add recycle logic
+
+
+
             return Ok();
         }
     }
