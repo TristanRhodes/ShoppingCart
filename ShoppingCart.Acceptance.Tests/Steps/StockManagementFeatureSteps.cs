@@ -58,7 +58,9 @@ namespace ShoppingCart.Acceptance.Tests.Steps
                 .GetAsync("heartbeat")
                 .Result;
 
-            response.IsSuccessStatusCode.ShouldBe(true);
+            response
+                .StatusCode
+                .ShouldBe(HttpStatusCode.OK, "Heartbeat check failed");
         }
 
         [When(@"I request a list of stock items")]

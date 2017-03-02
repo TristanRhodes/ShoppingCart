@@ -22,6 +22,9 @@
       "dependencies": {
         "ShoppingCart.Core": {
           "target": "project"
+        },
+        "ShoppingCart.Core.Model": {
+          "target": "project"
         }
       }
     }
