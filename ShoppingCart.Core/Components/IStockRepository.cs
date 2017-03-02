@@ -19,4 +19,16 @@ namespace ShoppingCart.Core.Components
 
         bool RemoveStock(int productId, int quantity = 1);
     }
+
+    public static class IStockRepositoryExtensions
+    {
+        public static StockItem GetStockItem(this IStockRepository repository, int? productId, string productName)
+        {
+            if (productId.HasValue)
+                return repository.GetStockItem(productId.Value);
+            else
+                return repository.GetStockItem(productName);
+        }
+    }
+
 }

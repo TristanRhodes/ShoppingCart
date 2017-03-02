@@ -3,21 +3,21 @@ using ShoppingCart.Core.Components;
 using ShoppingCart.Core.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Controllers
 {
     public class BasketController : Controller
     {
+        private IStockRepository _stockRepository;
         private IBasketRepository _basketRepository;
         private ICoordinator _coordinator;
 
         public BasketController(
+            IStockRepository stockRepository,
             IBasketRepository basketRepository,
             ICoordinator coordinator)
         {
+            _stockRepository = stockRepository;
             _basketRepository = basketRepository;
             _coordinator = coordinator;
         }
@@ -38,7 +38,7 @@ namespace ShoppingCart.Core.Controllers
             if (HasInvalidProductIdentifiers(productId, productName))
                 return BadRequest("Please supply a single value for productId or productName.");
 
-            var product = _coordinator.GetStockItem(productId, productName);
+            var product = _stockRepository.GetStockItem(productId, productName);
             if (product == null)
                 return NotFound("Product");
 
@@ -75,7 +75,7 @@ namespace ShoppingCart.Core.Controllers
             if (HasInvalidProductIdentifiers(productId, productName))
                 return BadRequest("Please supply a single value for productId or productName.");
 
-            var product = _coordinator.GetStockItem(productId, productName);
+            var product = _stockRepository.GetStockItem(productId, productName);
             if (product == null)
                 return NotFound("Product");
 

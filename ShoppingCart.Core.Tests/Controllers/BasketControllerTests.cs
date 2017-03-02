@@ -30,7 +30,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 _basketRepository = Substitute.For<IBasketRepository>();
                 _coordinator = new Coordinator(_stockRepository, _basketRepository);
 
-                _controller = new BasketController(_basketRepository, _coordinator);
+                _controller = new BasketController(_stockRepository, _basketRepository, _coordinator);
             }
         }
 

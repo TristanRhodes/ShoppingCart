@@ -14,9 +14,11 @@ namespace ShoppingCart.Core.Components
 
         AvailabilityCheckResults CanAddItemsToBasketCheck(string userId, List<BasketItem> products);
 
+
         bool CanAddItemToBasket(string userId, int productId);
 
         List<BasketItem> AddItemToBasket(string userId, int id);
+
 
         List<BasketItem> RemoveItemFromBasket(string userId, int productId);
 
@@ -24,9 +26,6 @@ namespace ShoppingCart.Core.Components
         StockAvailabilityCheckResults CanCheckoutBasketCheck(string userId);
 
         Invoice CheckoutBasket(string userId);
-
-
-        StockItem GetStockItem(int? productId, string productName);
     }
 
     public class Coordinator : ICoordinator
@@ -128,14 +127,6 @@ namespace ShoppingCart.Core.Components
             }
 
             return GenerateInvoice(userId, basket, products);
-        }
-
-        public StockItem GetStockItem(int? productId, string productName)
-        {
-            if (productId.HasValue)
-                return _stockRepository.GetStockItem(productId.Value);
-            else
-                return _stockRepository.GetStockItem(productName);
         }
 
         private Invoice GenerateInvoice(string userId, List<BasketItem> basket, List<StockItem> products)
