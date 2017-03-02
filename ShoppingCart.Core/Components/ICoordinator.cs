@@ -14,17 +14,19 @@ namespace ShoppingCart.Core.Components
 
         AvailabilityCheckResults CanAddItemsToBasketCheck(string userId, List<BasketItem> products);
 
+        bool CanAddItemToBasket(string userId, int productId);
+
         List<BasketItem> AddItemToBasket(string userId, int id);
 
-        bool CanAddItemToBasket(string userId, int productId);
+        List<BasketItem> RemoveItemFromBasket(string userId, int productId);
+
+
+        StockAvailabilityCheckResults CanCheckoutBasketCheck(string userId);
 
         Invoice CheckoutBasket(string userId);
 
+
         StockItem GetStockItem(int? productId, string productName);
-
-        StockAvailabilityCheckResults UserBasketStockCheck(string userId);
-
-        List<BasketItem> RemoveItemFromBasket(string userId, int productId);
     }
 
     public class Coordinator : ICoordinator
@@ -80,7 +82,7 @@ namespace ShoppingCart.Core.Components
             return results;
         }
 
-        public StockAvailabilityCheckResults UserBasketStockCheck(
+        public StockAvailabilityCheckResults CanCheckoutBasketCheck(
             string userId)
         {
 
@@ -118,13 +120,14 @@ namespace ShoppingCart.Core.Components
         public Invoice CheckoutBasket(string userId)
         {
             var basket = _basketRepository.GetBasket(userId);
+            var products = GetProducts(basket);
 
             foreach (var basketItem in basket)
             {
                 _stockRepository.RemoveStock(basketItem.ProductId, basketItem.ItemCount);
             }
 
-            return GenerateInvoice(userId, basket);
+            return GenerateInvoice(userId, basket, products);
         }
 
         public StockItem GetStockItem(int? productId, string productName)
@@ -135,7 +138,7 @@ namespace ShoppingCart.Core.Components
                 return _stockRepository.GetStockItem(productName);
         }
 
-        private Invoice GenerateInvoice(string userId, List<BasketItem> basket, List<StockItem> products = null)
+        private Invoice GenerateInvoice(string userId, List<BasketItem> basket, List<StockItem> products)
         {
             var invoiceItems = GenerateInvoiceItems(basket, products);
 
@@ -146,23 +149,6 @@ namespace ShoppingCart.Core.Components
                         .Items
                         .Sum(i => i.Cost);
             return invoice;
-        }
-
-        private List<InvoiceItem> GenerateInvoiceItems(List<BasketItem> basket, List<StockItem> products)
-        {
-            return basket
-                .Select(b => new
-                {
-                    BasketItem = b,
-                    StockItem = products.Single(p => p.Id == b.ProductId)
-                })
-                .Select(i => new InvoiceItem()
-                {
-                    ProductName = i.StockItem.Name,
-                    Quantity = i.BasketItem.ItemCount,
-                    Cost = i.BasketItem.ItemCount * i.StockItem.Price
-                })
-                .ToList();
         }
 
         public bool CanAddItemToBasket(string userId, int productId)
@@ -183,6 +169,39 @@ namespace ShoppingCart.Core.Components
         {
             _basketRepository.RemoveItemFromUserBasket(userId, productId);
             return _basketRepository.GetBasket(userId);
+        }
+        
+        private List<InvoiceItem> GenerateInvoiceItems(List<BasketItem> basket, List<StockItem> products)
+        {
+            return basket
+                .Select(b => new
+                {
+                    BasketItem = b,
+                    StockItem = products.Single(p => p.Id == b.ProductId)
+                })
+                .Select(i => new InvoiceItem()
+                {
+                    ProductName = i.StockItem.Name,
+                    Quantity = i.BasketItem.ItemCount,
+                    Cost = i.BasketItem.ItemCount * i.StockItem.Price
+                })
+                .ToList();
+        }
+
+        private List<StockItem> GetProducts(IEnumerable<BasketItem> basket)
+        {
+            var ids = basket
+                .Select(b => b.ProductId)
+                .ToArray();
+
+            return GetProducts(ids);
+        }
+
+        private List<StockItem> GetProducts(params int[] productIds)
+        {
+            return productIds
+                .Select(id => _stockRepository.GetStockItem(id))
+                .ToList();
         }
     }
 

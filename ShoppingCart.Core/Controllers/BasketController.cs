@@ -88,7 +88,7 @@ namespace ShoppingCart.Core.Controllers
         public IActionResult CheckoutBasket(
             [FromRoute]string userId)
         {
-            var results = _coordinator.UserBasketStockCheck(userId);
+            var results = _coordinator.CanCheckoutBasketCheck(userId);
             if (results.HasNotFoundProducts)
                 return BadRequest("Products not found: " + string.Join(", ", results.ProductsNotFound));
 
