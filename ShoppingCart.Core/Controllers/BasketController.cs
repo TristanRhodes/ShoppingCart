@@ -10,16 +10,16 @@ namespace ShoppingCart.Core.Controllers
     {
         private IStockRepository _stockRepository;
         private IBasketRepository _basketRepository;
-        private IBasketManager _coordinator;
+        private IBasketManager _basketManager;
 
         public BasketController(
             IStockRepository stockRepository,
             IBasketRepository basketRepository,
-            IBasketManager coordinator)
+            IBasketManager basketManager)
         {
             _stockRepository = stockRepository;
             _basketRepository = basketRepository;
-            _coordinator = coordinator;
+            _basketManager = basketManager;
         }
 
         [HttpGet("api/{userId}/basket")]
@@ -42,10 +42,10 @@ namespace ShoppingCart.Core.Controllers
             if (product == null)
                 return NotFound("Product");
 
-            if (!_coordinator.CanAddItemToBasket(userId, product.Id))
+            if (!_basketManager.CanAddItemToBasket(userId, product.Id))
                 return BadRequest("Not Enough Stock");
             
-            var basket = _coordinator.AddItemToBasket(userId, product.Id);
+            var basket = _basketManager.AddItemToBasket(userId, product.Id);
             return Json(basket);
         }
 
@@ -54,7 +54,7 @@ namespace ShoppingCart.Core.Controllers
             [FromRoute]string userId,
             [FromBody]List<BasketItem> products)
         {
-            var check = _coordinator.CanAddItemsToBasketCheck(userId, products);
+            var check = _basketManager.CanAddItemsToBasketCheck(userId, products);
 
             if (check.HasNotFoundProducts)
                 return BadRequest("Products not found: " + string.Join(", ", check.ProductsNotFound));
@@ -62,7 +62,7 @@ namespace ShoppingCart.Core.Controllers
             if (check.HasUnavailableProducts)
                 return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", check.ProductsNotAvailable));
 
-            var basket = _coordinator.AddItemsToBasket(userId, products);
+            var basket = _basketManager.AddItemsToBasket(userId, products);
             return Json(basket);
         }
 
@@ -79,7 +79,7 @@ namespace ShoppingCart.Core.Controllers
             if (product == null)
                 return NotFound("Product");
 
-            var basket = _coordinator.RemoveItemFromBasket(userId, product.Id);
+            var basket = _basketManager.RemoveItemFromBasket(userId, product.Id);
             return Json(basket);
         }
 
@@ -87,14 +87,14 @@ namespace ShoppingCart.Core.Controllers
         public IActionResult CheckoutBasket(
             [FromRoute]string userId)
         {
-            var results = _coordinator.CanCheckoutBasketCheck(userId);
+            var results = _basketManager.CanCheckoutBasketCheck(userId);
             if (results.HasNotFoundProducts)
                 return BadRequest("Products not found: " + string.Join(", ", results.ProductsNotFound));
 
             if (results.HasUnavailableProducts)
                 return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", results.ProductsNotAvailable));
 
-            var invoice = _coordinator.CheckoutBasket(userId);
+            var invoice = _basketManager.CheckoutBasket(userId);
             return Json(invoice);
         }
 

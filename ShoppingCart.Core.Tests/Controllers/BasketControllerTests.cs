@@ -19,18 +19,18 @@ namespace ShoppingCart.Core.Tests.Controllers
         {
             protected IBasketRepository _basketRepository;
             protected IStockRepository _stockRepository;
+            protected IBasketManager _basketManager;
 
             protected BasketController _controller;
-            protected BasketManager _coordinator;
 
             [SetUp]
             public void Setup()
             {
                 _stockRepository = Substitute.For<IStockRepository>();
                 _basketRepository = Substitute.For<IBasketRepository>();
-                _coordinator = new BasketManager(_stockRepository, _basketRepository);
+                _basketManager = Substitute.For<IBasketManager>();
 
-                _controller = new BasketController(_stockRepository, _basketRepository, _coordinator);
+                _controller = new BasketController(_stockRepository, _basketRepository, _basketManager);
             }
         }
 
@@ -75,19 +75,9 @@ namespace ShoppingCart.Core.Tests.Controllers
                     Stock = 0
                 };
 
-                var basketItem = new BasketItem()
-                {
-                    ProductId = productId,
-                    ItemCount = 0
-                };
-
                 _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId)
-                    .Returns(basketItem);
 
                 _controller
                     .AddToBasket(userName, productId)
@@ -106,31 +96,21 @@ namespace ShoppingCart.Core.Tests.Controllers
                     Stock = 2
                 };
 
-                var basketItem = new BasketItem()
-                {
-                    ProductId = productId,
-                    ItemCount = 1
-                };
-
                 _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
 
-                _basketRepository
-                    .GetBasketItem(userName, productId)
-                    .Returns(basketItem);
-
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(new List<BasketItem>());
+                _basketManager
+                    .CanAddItemToBasket(userName, productId)
+                    .Returns(true);
 
                 _controller
                     .AddToBasket(userName, productId)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketRepository
+                _basketManager
                     .Received()
-                    .AddItemToUserBasket(userName, productId);
+                    .AddItemToBasket(userName, productId);
             }
         }
 
@@ -175,239 +155,162 @@ namespace ShoppingCart.Core.Tests.Controllers
                     Stock = 2
                 };
 
-                var basketItem = new BasketItem()
-                {
-                    ProductId = productId,
-                    ItemCount = 1
-                };
-
                 _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId)
-                    .Returns(basketItem);
-
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(new List<BasketItem>());
 
                 _controller
                     .RemoveFromBasket(userName, productId)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketRepository
+                _basketManager
                     .Received()
-                    .RemoveItemFromUserBasket(userName, productId);
+                    .RemoveItemFromBasket(userName, productId);
             }
         }
 
         public class BulkAddToBasket : BasketTestBase
         {
             [Test]
-            public void ShouldReturnBadRequestWhenItemsWithInsufficientStock()
+            public void ShouldReturnBadRequestWhenItemsNotFound()
             {
                 var userName = "user";
-                var productId = 1;
+                var productsToAdd = new List<BasketItem>();
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 1
-                };
+                var check = new AvailabilityCheckResults();
+                check.Available = false;
+                check.ProductsNotFound.Add(1);
 
-                var basketItem = new BasketItem()
-                {
-                    ProductId = productId,
-                    ItemCount = 1
-                };
-
-                var productsToAdd = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = 1, ItemCount = 2 }
-                };
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId)
-                    .Returns(basketItem);
+                _basketManager
+                    .CanAddItemsToBasketCheck(userName, productsToAdd)
+                    .Returns(check);
 
                 _controller
                     .BulkAddToBasket(userName, productsToAdd)
-                    .ShouldBeOfType<BadRequestObjectResult>();
+                    .ShouldBeOfType<BadRequestObjectResult>()
+                    .Value.ShouldBeOfType<string>()
+                    .ShouldStartWith("Products not found: ");
             }
 
             [Test]
-            public void ShouldAddToBasketRequestWhenItemsInStock()
+            public void ShouldReturnBadRequestWhenItemsWithInsufficientStock()
             {
                 var userName = "user";
-                var productId1 = 1;
-                var productId2 = 2;
-                var itemsToAdd = 2;
+                var productsToAdd = new List<BasketItem>();
 
-                var stockItem1 = new StockItem()
-                {
-                    Id = productId1,
-                    Stock = 3
-                };
+                var check = new AvailabilityCheckResults();
+                check.Available = false;
+                check.ProductsNotAvailable.Add("product");
 
-                var stockItem2 = new StockItem()
-                {
-                    Id = productId2,
-                    Stock = 3
-                };
-
-                var basketItem1 = new BasketItem()
-                {
-                    ProductId = productId1,
-                    ItemCount = 1
-                };
-
-                var basketItem2 = new BasketItem()
-                {
-                    ProductId = productId2,
-                    ItemCount = 1
-                };
-
-                var productsToAdd = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = productId1, ItemCount = itemsToAdd },
-                    new BasketItem() { ProductId = productId2, ItemCount = itemsToAdd }
-                };
-
-                _stockRepository
-                    .GetStockItem(productId1)
-                    .Returns(stockItem1);
-
-                _stockRepository
-                    .GetStockItem(productId2)
-                    .Returns(stockItem2);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId1)
-                    .Returns(basketItem1);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId2)
-                    .Returns(basketItem2);
+                _basketManager
+                    .CanAddItemsToBasketCheck(userName, productsToAdd)
+                    .Returns(check);
 
                 _controller
                     .BulkAddToBasket(userName, productsToAdd)
-                    .ShouldBeOfType<JsonResult>();
+                    .ShouldBeOfType<BadRequestObjectResult>()
+                    .Value.ShouldBeOfType<string>()
+                    .ShouldStartWith("Not Enough Stock for item(s): ");
+            }
 
-                _basketRepository
-                    .Received()
-                    .AddItemToUserBasket(userName, productId1, itemsToAdd);
+            [Test]
+            public void ShouldAddToBasketRequestWhenCanAddItemsToBasket()
+            {
+                var userName = "user";
+                var productsToAdd = new List<BasketItem>();
 
-                _basketRepository
+                var check = new AvailabilityCheckResults();
+                check.Available = false;
+
+                var basket = new List<BasketItem>();
+
+                _basketManager
+                    .CanAddItemsToBasketCheck(userName, productsToAdd)
+                    .Returns(check);
+
+                _basketManager
+                    .AddItemsToBasket(userName, productsToAdd)
+                    .Returns(basket);
+
+                _controller
+                    .BulkAddToBasket(userName, productsToAdd)
+                    .ShouldBeOfType<JsonResult>()
+                    .Value.ShouldBeOfType<List<BasketItem>>();
+
+                _basketManager
                     .Received()
-                    .AddItemToUserBasket(userName, productId2, itemsToAdd);
+                    .AddItemsToBasket(userName, productsToAdd);
             }
         }
 
         public class BasketCheckout : BasketTestBase
         {
             [Test]
-            public void ShouldReturnBadRequestWhenProductNotFound()
+            public void ShouldReturnBadRequestWhenItemsNotFound()
             {
                 var userName = "user";
-                var productId = 1;
+                var productsToAdd = new List<BasketItem>();
 
-                var basketItems = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = productId, ItemCount = 1}
-                };
+                var check = new AvailabilityCheckResults();
+                check.Available = false;
+                check.ProductsNotFound.Add(1);
 
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                _basketManager
+                    .CanCheckoutBasketCheck(userName)
+                    .Returns(check);
 
                 _controller
                     .CheckoutBasket(userName)
                     .ShouldBeOfType<BadRequestObjectResult>()
                     .Value.ShouldBeOfType<string>()
-                    .ShouldBe("Products not found: " + productId);
+                    .ShouldStartWith("Products not found: ");
             }
 
             [Test]
-            public void ShouldReturnBadRequestWhenInsufficientStock()
+            public void ShouldReturnBadRequestWhenItemsWithInsufficientStock()
             {
-                var productId = 1;
-                var productName = "productName";
                 var userName = "user";
+                var productsToAdd = new List<BasketItem>();
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 0,
-                    Name = productName
-                };
+                var check = new AvailabilityCheckResults();
+                check.Available = false;
+                check.ProductsNotAvailable.Add("product");
 
-                var basketItems = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = productId, ItemCount = 1}
-                };
-
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
+                _basketManager
+                    .CanCheckoutBasketCheck(userName)
+                    .Returns(check);
 
                 _controller
                     .CheckoutBasket(userName)
                     .ShouldBeOfType<BadRequestObjectResult>()
                     .Value.ShouldBeOfType<string>()
-                    .ShouldBe("Not Enough Stock for item(s): " + productName);
+                    .ShouldStartWith("Not Enough Stock for item(s): ");
             }
-            
+
             [Test]
             public void ShouldReturnInvoiceAndDeductStockWhenSuccesful()
             {
-                var productId = 1;
-                var stock = 2;
-                var price = 6.99M;
-                var productName = "productName";
                 var userName = "user";
+                var productsToAdd = new List<BasketItem>();
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = stock,
-                    Name = productName,
-                    Price = price
-                };
+                var check = new AvailabilityCheckResults();
+                check.Available = false;
 
-                var basketItems = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = productId, ItemCount = stock}
-                };
+                var invoice = new Invoice();
 
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                _basketManager
+                    .CanCheckoutBasketCheck(userName)
+                    .Returns(check);
 
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                _basketManager
+                    .CheckoutBasket(userName)
+                    .Returns(invoice);
 
-                var invoice = _controller
+                _controller
                     .CheckoutBasket(userName)
                     .ShouldBeOfType<JsonResult>()
-                    .Value.ShouldBeOfType<Invoice>();
-
-                invoice.Total.ShouldBe(stock * price);
-                invoice.User.ShouldBe(userName);
-                invoice.Items.Count.ShouldBe(1);
+                    .Value.ShouldBeOfType<Invoice>()
+                    .ShouldBe(invoice);
             }
         }
     }
