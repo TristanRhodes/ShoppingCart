@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using ShoppingCart.Core.Commands;
 using ShoppingCart.Core.Components;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,11 @@ namespace ShoppingCart.Core
         {
             services.AddSingleton<IBasketRepository, BasketRepository>();
             services.AddSingleton<IStockRepository, StockRepository>();
-            services.AddSingleton<IBasketManager, BasketManager>();
+
+            services.AddSingleton<IAddItemToBasketCommand, AddItemToBasketCommand>();
+            services.AddSingleton<IBulkAddItemsToBasketCommand, BulkAddItemsToBasketCommand>();
+            services.AddSingleton<IRemoveItemFromBasketCommand, RemoveItemFromBasketCommand>();
+            services.AddSingleton<ICheckoutBasketCommand, CheckoutBasketCommand>();
 
             return services;
         }

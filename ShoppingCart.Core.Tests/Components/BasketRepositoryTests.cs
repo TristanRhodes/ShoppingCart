@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Tests.Components
 {
-    public class BasketManagerTests 
+    public class BasketRepositoryTests 
     {
         private BasketRepository _basketRepository;
 

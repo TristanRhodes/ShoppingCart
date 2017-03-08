@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.Core.Commands;
 using ShoppingCart.Core.Components;
 using ShoppingCart.Core.Model;
 using System;
@@ -8,18 +9,25 @@ namespace ShoppingCart.Core.Controllers
 {
     public class BasketController : Controller
     {
-        private IStockRepository _stockRepository;
         private IBasketRepository _basketRepository;
-        private IBasketManager _basketManager;
+
+        private IAddItemToBasketCommand _addCommand;
+        private IBulkAddItemsToBasketCommand _bulkAddCommand;
+        private IRemoveItemFromBasketCommand _removeCommand;
+        private ICheckoutBasketCommand _checkoutCommand;
 
         public BasketController(
-            IStockRepository stockRepository,
             IBasketRepository basketRepository,
-            IBasketManager basketManager)
+            IAddItemToBasketCommand addCommand,
+            IBulkAddItemsToBasketCommand bulkAddCommand,
+            IRemoveItemFromBasketCommand removeCommand,
+            ICheckoutBasketCommand checkoutCommand)
         {
-            _stockRepository = stockRepository;
             _basketRepository = basketRepository;
-            _basketManager = basketManager;
+            _addCommand = addCommand;
+            _bulkAddCommand = bulkAddCommand;
+            _removeCommand = removeCommand;
+            _checkoutCommand = checkoutCommand;
         }
 
         [HttpGet("api/{userId}/basket")]
@@ -37,7 +45,7 @@ namespace ShoppingCart.Core.Controllers
         {
             var identifier = new ProductIdentifier(productId, productName);
 
-            var actionStatus = _basketManager
+            var actionStatus = _addCommand
                 .CanAddItemToBasketCheck(userId, identifier);
 
             if (actionStatus == BasketOperationStatus.InvalidIdentifier)
@@ -49,7 +57,7 @@ namespace ShoppingCart.Core.Controllers
             if (actionStatus == BasketOperationStatus.InsufficientStock)
                 return BadRequest("Not Enough Stock");
             
-            var basket = _basketManager.AddItemToBasket(userId, identifier);
+            var basket = _addCommand.AddItemToBasket(userId, identifier);
             return Json(basket);
         }
 
@@ -58,7 +66,8 @@ namespace ShoppingCart.Core.Controllers
             [FromRoute]string userId,
             [FromBody]List<BasketItem> products)
         {
-            var check = _basketManager.CanAddItemsToBasketCheck(userId, products);
+            var check = _bulkAddCommand
+                .CanAddItemsToBasketCheck(userId, products);
 
             if (check.HasNotFoundProducts)
                 return BadRequest("Products not found: " + string.Join(", ", check.ProductsNotFound));
@@ -66,7 +75,9 @@ namespace ShoppingCart.Core.Controllers
             if (check.HasUnavailableProducts)
                 return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", check.ProductsNotAvailable));
 
-            var basket = _basketManager.AddItemsToBasket(userId, products);
+            var basket = _bulkAddCommand
+                .AddItemsToBasket(userId, products);
+
             return Json(basket);
         }
 
@@ -78,7 +89,7 @@ namespace ShoppingCart.Core.Controllers
         {
             var identifier = new ProductIdentifier(productId, productName);
 
-            var actionStatus = _basketManager
+            var actionStatus = _removeCommand
                 .CanRemoveItemFromBasketCheck(userId, identifier);
 
             if (actionStatus == BasketOperationStatus.InvalidIdentifier)
@@ -90,7 +101,9 @@ namespace ShoppingCart.Core.Controllers
             if (actionStatus == BasketOperationStatus.NotInBasket)
                 return BadRequest("Not in basket");
 
-            var basket = _basketManager.RemoveItemFromBasket(userId, identifier);
+            var basket = _removeCommand
+                .RemoveItemFromBasket(userId, identifier);
+
             return Json(basket);
         }
 
@@ -98,7 +111,7 @@ namespace ShoppingCart.Core.Controllers
         public IActionResult CheckoutBasket(
             [FromRoute]string userId)
         {
-            var results = _basketManager
+            var results = _checkoutCommand
                 .CanCheckoutBasketCheck(userId);
 
             if (results.HasNotFoundProducts)
@@ -107,7 +120,9 @@ namespace ShoppingCart.Core.Controllers
             if (results.HasUnavailableProducts)
                 return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", results.ProductsNotAvailable));
 
-            var invoice = _basketManager.CheckoutBasket(userId);
+            var invoice = _checkoutCommand
+                .CheckoutBasket(userId);
+
             return Json(invoice);
         }
     }

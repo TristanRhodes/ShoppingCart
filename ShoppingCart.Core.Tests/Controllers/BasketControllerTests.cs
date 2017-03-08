@@ -10,25 +10,36 @@ using System.Threading.Tasks;
 using Shouldly;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Core.Model;
+using ShoppingCart.Core.Commands;
 
 namespace ShoppingCart.Core.Tests.Controllers
 {
     public class BasketControllerTests
     {
         protected IBasketRepository _basketRepository;
-        protected IStockRepository _stockRepository;
-        protected IBasketManager _basketManager;
+
+        protected IAddItemToBasketCommand _addCommand;
+        protected IBulkAddItemsToBasketCommand _bulkAddCommand;
+        protected IRemoveItemFromBasketCommand _removeCommand;
+        protected ICheckoutBasketCommand _checkoutCommand;
 
         protected BasketController _controller;
 
         [SetUp]
         public void Setup()
         {
-            _stockRepository = Substitute.For<IStockRepository>();
             _basketRepository = Substitute.For<IBasketRepository>();
-            _basketManager = Substitute.For<IBasketManager>();
+            _addCommand = Substitute.For<IAddItemToBasketCommand>();
+            _bulkAddCommand = Substitute.For<IBulkAddItemsToBasketCommand>();
+            _removeCommand = Substitute.For<IRemoveItemFromBasketCommand>();
+            _checkoutCommand = Substitute.For<ICheckoutBasketCommand>();
 
-            _controller = new BasketController(_stockRepository, _basketRepository, _basketManager);
+            _controller = new BasketController(
+                _basketRepository, 
+                _addCommand, 
+                _bulkAddCommand, 
+                _removeCommand, 
+                _checkoutCommand);
         }
 
         public class AddToBasket : BasketControllerTests
@@ -38,7 +49,7 @@ namespace ShoppingCart.Core.Tests.Controllers
             {
                 var userName = "user";
 
-                _basketManager
+                _addCommand
                     .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.InvalidIdentifier);
 
@@ -52,7 +63,7 @@ namespace ShoppingCart.Core.Tests.Controllers
             {
                 var userName = "user";
 
-                _basketManager
+                _addCommand
                     .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.ProductNotFound);
 
@@ -67,7 +78,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userName = "user";
                 var productId = 1;
 
-                _basketManager
+                _addCommand
                     .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.InsufficientStock);
 
@@ -82,7 +93,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userName = "user";
                 var productId = 1;
 
-                _basketManager
+                _addCommand
                     .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.Ok);
 
@@ -90,7 +101,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .AddToBasket(userName, productId)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketManager
+                _addCommand
                     .Received()
                     .AddItemToBasket(userName, Arg.Any<ProductIdentifier>());
             }
@@ -104,7 +115,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userId = "user";
                 var productId = 1;
 
-                _basketManager
+                _removeCommand
                     .CanRemoveItemFromBasketCheck(userId, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.InvalidIdentifier);
 
@@ -119,7 +130,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userId = "user";
                 var productId = 1;
 
-                _basketManager
+                _removeCommand
                     .CanRemoveItemFromBasketCheck(userId, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.ProductNotFound);
 
@@ -134,7 +145,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userId = "user";
                 var productId = 1;
 
-                _basketManager
+                _removeCommand
                     .CanRemoveItemFromBasketCheck(userId, Arg.Any<ProductIdentifier>())
                     .Returns(BasketOperationStatus.NotInBasket);
 
@@ -149,21 +160,11 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userName = "user";
                 var productId = 1;
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 2
-                };
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
-
                 _controller
                     .RemoveFromBasket(userName, productId)
                     .ShouldBeOfType<JsonResult>();
 
-                _basketManager
+                _removeCommand
                     .Received()
                     .RemoveItemFromBasket(userName, Arg.Any<ProductIdentifier>());
             }
@@ -181,7 +182,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 check.Available = false;
                 check.ProductsNotFound.Add(1);
 
-                _basketManager
+                _bulkAddCommand
                     .CanAddItemsToBasketCheck(userName, productsToAdd)
                     .Returns(check);
 
@@ -202,7 +203,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 check.Available = false;
                 check.ProductsNotAvailable.Add("product");
 
-                _basketManager
+                _bulkAddCommand
                     .CanAddItemsToBasketCheck(userName, productsToAdd)
                     .Returns(check);
 
@@ -224,11 +225,11 @@ namespace ShoppingCart.Core.Tests.Controllers
 
                 var basket = new List<BasketItem>();
 
-                _basketManager
+                _bulkAddCommand
                     .CanAddItemsToBasketCheck(userName, productsToAdd)
                     .Returns(check);
 
-                _basketManager
+                _bulkAddCommand
                     .AddItemsToBasket(userName, productsToAdd)
                     .Returns(basket);
 
@@ -237,7 +238,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .ShouldBeOfType<JsonResult>()
                     .Value.ShouldBeOfType<List<BasketItem>>();
 
-                _basketManager
+                _bulkAddCommand
                     .Received()
                     .AddItemsToBasket(userName, productsToAdd);
             }
@@ -255,7 +256,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 check.Available = false;
                 check.ProductsNotFound.Add(1);
 
-                _basketManager
+                _checkoutCommand
                     .CanCheckoutBasketCheck(userName)
                     .Returns(check);
 
@@ -276,7 +277,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 check.Available = false;
                 check.ProductsNotAvailable.Add("product");
 
-                _basketManager
+                _checkoutCommand
                     .CanCheckoutBasketCheck(userName)
                     .Returns(check);
 
@@ -298,11 +299,11 @@ namespace ShoppingCart.Core.Tests.Controllers
 
                 var invoice = new Invoice();
 
-                _basketManager
+                _checkoutCommand
                     .CanCheckoutBasketCheck(userName)
                     .Returns(check);
 
-                _basketManager
+                _checkoutCommand
                     .CheckoutBasket(userName)
                     .Returns(invoice);
 

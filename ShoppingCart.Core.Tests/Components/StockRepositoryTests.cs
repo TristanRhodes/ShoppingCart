@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.Core.Tests.Components
 {
-    public class StockManagerTests
+    public class StockRepositoryTests
     {
         private IDataImporter _importer;
         private StockRepository _stockRepository;

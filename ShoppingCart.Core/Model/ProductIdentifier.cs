@@ -1,27 +1,11 @@
-﻿using ShoppingCart.Core.Model;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ShoppingCart.Core.Components
+namespace ShoppingCart.Core.Model
 {
-    public interface IBasketManager
-    {
-        BasketOperationStatus CanAddItemToBasketCheck(string userId, ProductIdentifier identifier);
-
-        List<BasketItem> AddItemToBasket(string userId, ProductIdentifier identifier);
-
-        AvailabilityCheckResults CanAddItemsToBasketCheck(string userId, List<BasketItem> products);
-
-        List<BasketItem> AddItemsToBasket(string userId, List<BasketItem> products);
-
-        BasketOperationStatus CanRemoveItemFromBasketCheck(string userId, ProductIdentifier identifier);
-
-        List<BasketItem> RemoveItemFromBasket(string userId, ProductIdentifier identifier);
-
-        AvailabilityCheckResults CanCheckoutBasketCheck(string userId);
-
-        Invoice CheckoutBasket(string userId);
-    }
-
     public class ProductIdentifier
     {
         public ProductIdentifier(int? productId, string productName)

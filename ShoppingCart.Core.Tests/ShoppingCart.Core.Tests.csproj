@@ -405,10 +405,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
-    <Compile Include="Components\BasketManagerTests.cs" />
+    <Compile Include="Commands\AddItemToBasketCommandTests.cs" />
+    <Compile Include="Commands\BulkAddItemsToBasketCommandTests.cs" />
+    <Compile Include="Commands\CheckoutBasketCommandTests.cs" />
+    <Compile Include="Commands\RemoveItemFromBasketCommandTests.cs" />
+    <Compile Include="Components\BasketRepositoryTests.cs" />
     <Compile Include="Components\DataImporterTests.cs" />
-    <Compile Include="Components\StockManagerTests.cs" />
-    <Compile Include="Controllers\BasketManagerTests.cs" />
+    <Compile Include="Components\StockRepositoryTests.cs" />
     <Compile Include="Controllers\BasketControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

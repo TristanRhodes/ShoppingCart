@@ -394,11 +394,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Components\BasketManager.cs" />
+    <Compile Include="Commands\AddItemToBasketCommand.cs" />
+    <Compile Include="Commands\BulkAddItemsToBasketCommand.cs" />
+    <Compile Include="Commands\CheckoutBasketCommand.cs" />
+    <Compile Include="Commands\RemoveItemFromBasketCommand.cs" />
     <Compile Include="Components\BasketRepository.cs" />
     <Compile Include="Components\DataImporter.cs" />
     <Compile Include="Components\IBasketRepository.cs" />
-    <Compile Include="Components\IBasketManager.cs" />
     <Compile Include="Components\IStockRepository.cs" />
     <Compile Include="Components\StockRepository.cs" />
     <Compile Include="Controllers\BasketController.cs" />
@@ -407,6 +409,7 @@
     <Compile Include="Components\IDataImporter.cs" />
     <Compile Include="Model\BasketOperationStatus.cs" />
     <Compile Include="Model\AvailabilityCheckResults.cs" />
+    <Compile Include="Model\ProductIdentifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -423,6 +426,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
