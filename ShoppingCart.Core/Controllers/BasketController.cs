@@ -48,7 +48,7 @@ namespace ShoppingCart.Core.Controllers
             var actionStatus = _addCommand
                 .CanAddItemToBasketCheck(userId, identifier);
 
-            var response = GetFailureResponseForAction(actionStatus);
+            var response = GetFailureResponseForCheck(actionStatus);
             if (response != null)
                 return response;
 
@@ -64,11 +64,9 @@ namespace ShoppingCart.Core.Controllers
             var check = _bulkAddCommand
                 .CanAddItemsToBasketCheck(userId, products);
 
-            if (check.Result == AvailabilityCheckStatus.ProductsNotFound)
-                return BadRequest("Products not found: " + string.Join(", ", check.ProductsNotFound));
-
-            if (check.Result == AvailabilityCheckStatus.InsufficientStock)
-                return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", check.ProductsNotAvailable));
+            var response = GetFailureResponseForCheck(check);
+            if (response != null)
+                return response;
 
             var basket = _bulkAddCommand
                 .AddItemsToBasket(userId, products);
@@ -87,7 +85,7 @@ namespace ShoppingCart.Core.Controllers
             var actionStatus = _removeCommand
                 .CanRemoveItemFromBasketCheck(userId, identifier);
 
-            var response = GetFailureResponseForAction(actionStatus);
+            var response = GetFailureResponseForCheck(actionStatus);
             if (response != null)
                 return response;
 
@@ -104,11 +102,9 @@ namespace ShoppingCart.Core.Controllers
             var check = _checkoutCommand
                 .CanCheckoutBasketCheck(userId);
 
-            if (check.Result == AvailabilityCheckStatus.ProductsNotFound)
-                return BadRequest("Products not found: " + string.Join(", ", check.ProductsNotFound));
-
-            if (check.Result == AvailabilityCheckStatus.InsufficientStock)
-                return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", check.ProductsNotAvailable));
+            var response = GetFailureResponseForCheck(check);
+            if (response != null)
+                return response;
 
             var invoice = _checkoutCommand
                 .CheckoutBasket(userId);
@@ -116,7 +112,7 @@ namespace ShoppingCart.Core.Controllers
             return Json(invoice);
         }
          
-        private IActionResult GetFailureResponseForAction(BasketOperationStatus actionStatus)
+        private IActionResult GetFailureResponseForCheck(BasketOperationStatus actionStatus)
         {
             switch (actionStatus)
             {
@@ -132,6 +128,21 @@ namespace ShoppingCart.Core.Controllers
                     return BadRequest("Not in basket");
                 default:
                     throw new ApplicationException("Unhandled enumeration value: " + actionStatus);
+            }
+        }
+
+        private IActionResult GetFailureResponseForCheck(AvailabilityCheckResults check)
+        {
+            switch (check.Result)
+            {
+                case AvailabilityCheckStatus.Ok:
+                    return null;
+                case AvailabilityCheckStatus.ProductsNotFound:
+                    return BadRequest("Products not found: " + string.Join(", ", check.ProductsNotFound));
+                case AvailabilityCheckStatus.InsufficientStock:
+                    return BadRequest("Not Enough Stock for item(s): " + string.Join(", ", check.ProductsNotAvailable));
+                default:
+                    throw new ApplicationException("Unhandled enumeration value: " + check);
             }
         }
     }

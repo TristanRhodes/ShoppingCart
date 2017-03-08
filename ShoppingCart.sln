@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ShoppingCart", "ShoppingCart\ShoppingCart.xproj", "{9F42C980-2869-47DA-87BD-E3298F0B0B24}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{09E37E2E-E3E4-4CFB-99B9-BC6446D53530}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{24963B3F-B5EB-42A6-84E5-DF7EA5B85FE1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShoppingCart", "ShoppingCart\ShoppingCart.csproj", "{9F42C980-2869-47DA-87BD-E3298F0B0B24}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingCart.Core", "ShoppingCart.Core\ShoppingCart.Core.csproj", "{E2F2DB57-FB38-4F2B-AA20-7B9424976B49}"
 EndProject
@@ -12,10 +16,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingCart.Acceptance.Tests", "ShoppingCart.Acceptance.Tests\ShoppingCart.Acceptance.Tests.csproj", "{B5B03872-ECB7-43F1-A2EC-6F1E970C1EB5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingCart.Core.Model", "ShoppingCart.Core.Model\ShoppingCart.Core.Model.csproj", "{DAAF74B0-40D8-42B5-B426-2B13C2938B92}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{09E37E2E-E3E4-4CFB-99B9-BC6446D53530}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{24963B3F-B5EB-42A6-84E5-DF7EA5B85FE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
