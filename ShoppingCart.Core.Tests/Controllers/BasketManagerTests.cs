@@ -13,69 +13,63 @@ using ShoppingCart.Core.Model;
 
 namespace ShoppingCart.Core.Tests.Controllers
 {
-
-    public class BasketManagerTests
+    public abstract class BasketManagerTests
     {
-        public abstract class BasketTestBase
+        protected IBasketRepository _basketRepository;
+        protected IStockRepository _stockRepository;
+            
+        protected BasketManager _basketManager;
+
+        [SetUp]
+        public void Setup()
         {
-            protected IBasketRepository _basketRepository;
-            protected IStockRepository _stockRepository;
-
-            protected BasketController _controller;
-            protected BasketManager _coordinator;
-
-            [SetUp]
-            public void Setup()
-            {
-                _stockRepository = Substitute.For<IStockRepository>();
-                _basketRepository = Substitute.For<IBasketRepository>();
-                _coordinator = new BasketManager(_stockRepository, _basketRepository);
-
-                _controller = new BasketController(_stockRepository, _basketRepository, _coordinator);
-            }
+            _stockRepository = Substitute.For<IStockRepository>();
+            _basketRepository = Substitute.For<IBasketRepository>();
+            _basketManager = new BasketManager(_stockRepository, _basketRepository);
         }
 
-        public class AddToBasket : BasketTestBase
+        public class CanAddItemToBasketCheck : BasketManagerTests
         {
             [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreSupplied()
+            public void ShouldReturnInvalidIdentifierIfTheIdentifierSuppliedIsInvalid()
             {
-                _controller
-                    .AddToBasket(string.Empty, 1, "1")
-                    .ShouldBeOfType<BadRequestObjectResult>();
+                var userId = "userId";
+                var identifier = new ProductIdentifier(null, null);
+
+                _basketManager
+                    .CanAddItemToBasketCheck(userId, identifier)
+                    .ShouldBe(BasketOperationStatus.InvalidIdentifier);
             }
 
             [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreNotSupplied()
+            public void ShouldReturnProductNotFoundWhenNoProductReturned()
             {
-                _controller
-                   .AddToBasket(string.Empty, null, null)
-                   .ShouldBeOfType<BadRequestObjectResult>();
-            }
-
-            [Test]
-            public void ShouldReturnNotFoundWhenNoProductExists()
-            {
-                var userName = "user";
+                var userId = "userId";
                 var productId = 1;
 
-                _controller
-                    .AddToBasket(userName, productId)
-                    .ShouldBeOfType<NotFoundObjectResult>();
+                var identifier = new ProductIdentifier(productId, null);
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns((StockItem)null);
+
+                _basketManager
+                    .CanAddItemToBasketCheck(userId, identifier)
+                    .ShouldBe(BasketOperationStatus.ProductNotFound);
             }
 
             [Test]
-            public void ShouldReturnBadRequestWhenNotEnoughStockToSupportAdding()
+            public void ShouldReturnInsufficientStockWhenNotEnoughStock()
             {
-                var userName = "user";
+                var userId = "userId";
                 var productId = 1;
 
+                var identifier = new ProductIdentifier(productId, null);
                 var stockItem = new StockItem()
                 {
                     Id = productId,
                     Stock = 0
                 };
-
                 var basketItem = new BasketItem()
                 {
                     ProductId = productId,
@@ -87,146 +81,150 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .Returns(stockItem);
 
                 _basketRepository
-                    .GetBasketItem(userName, productId)
+                    .GetBasketItem(userId, productId)
                     .Returns(basketItem);
 
-                _controller
-                    .AddToBasket(userName, productId)
-                    .ShouldBeOfType<BadRequestObjectResult>();
+                _basketManager
+                    .CanAddItemToBasketCheck(userId, identifier)
+                    .ShouldBe(BasketOperationStatus.InsufficientStock);
             }
 
             [Test]
-            public void ShouldAddToBasketWhenEnoughStock()
+            public void ShouldReturnOkWhenSufficientStock()
             {
-                var userName = "user";
+                var userId = "userId";
                 var productId = 1;
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 2
-                };
-
-                var basketItem = new BasketItem()
-                {
-                    ProductId = productId,
-                    ItemCount = 1
-                };
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId)
-                    .Returns(basketItem);
-
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(new List<BasketItem>());
-
-                _controller
-                    .AddToBasket(userName, productId)
-                    .ShouldBeOfType<JsonResult>();
-
-                _basketRepository
-                    .Received()
-                    .AddItemToUserBasket(userName, productId);
-            }
-        }
-
-        public class RemoveFromBasket : BasketTestBase
-        {
-            [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreSupplied()
-            {
-                _controller
-                    .RemoveFromBasket(string.Empty, 1, "1")
-                    .ShouldBeOfType<BadRequestObjectResult>();
-            }
-
-            [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreNotSupplied()
-            {
-                _controller
-                   .RemoveFromBasket(string.Empty, null, null)
-                   .ShouldBeOfType<BadRequestObjectResult>();
-            }
-
-            [Test]
-            public void ShouldReturnNotFoundWhenNoProductExists()
-            {
-                var userName = "user";
-                var productId = 1;
-
-                _controller
-                    .RemoveFromBasket(userName, productId)
-                    .ShouldBeOfType<NotFoundObjectResult>();
-            }
-
-            [Test]
-            public void ShouldRemoveFromBasketWhenLastItemRemoved()
-            {
-                var userName = "user";
-                var productId = 1;
-
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 2
-                };
-
-                var basketItem = new BasketItem()
-                {
-                    ProductId = productId,
-                    ItemCount = 1
-                };
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
-
-                _basketRepository
-                    .GetBasketItem(userName, productId)
-                    .Returns(basketItem);
-
-                _basketRepository
-                    .GetBasket(userName)
-                    .Returns(new List<BasketItem>());
-
-                _controller
-                    .RemoveFromBasket(userName, productId)
-                    .ShouldBeOfType<JsonResult>();
-
-                _basketRepository
-                    .Received()
-                    .RemoveItemFromUserBasket(userName, productId);
-            }
-        }
-
-        public class BulkAddToBasket : BasketTestBase
-        {
-            [Test]
-            public void ShouldReturnBadRequestWhenItemsWithInsufficientStock()
-            {
-                var userName = "user";
-                var productId = 1;
-
+                var identifier = new ProductIdentifier(productId, null);
                 var stockItem = new StockItem()
                 {
                     Id = productId,
                     Stock = 1
                 };
+                var basketItem = new BasketItem()
+                {
+                    ProductId = productId,
+                    ItemCount = 0
+                };
 
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _basketRepository
+                    .GetBasketItem(userId, productId)
+                    .Returns(basketItem);
+
+                _basketManager
+                    .CanAddItemToBasketCheck(userId, identifier)
+                    .ShouldBe(BasketOperationStatus.Ok);
+            }
+        }
+
+        public class AddItemToBasket : BasketManagerTests
+        {
+            [Test]
+            public void ShouldThrowInvalidIdentifierExceptionIfTheIdentifierSuppliedIsInvalid()
+            {
+                var userId = "userId";
+                var identifier = new ProductIdentifier(null, null);
+
+                Should.Throw<ApplicationException>(() => _basketManager
+                    .AddItemToBasket(userId, identifier));
+            }
+
+            [Test]
+            public void ShouldThrowProductNotFoundExceptionIfProductNotFound()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var identifier = new ProductIdentifier(productId, null);
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns((StockItem)null);
+
+                Should.Throw<ApplicationException>(() => _basketManager
+                    .AddItemToBasket(userId, identifier));
+            }
+
+            [Test]
+            public void ShouldAddItemToBasketAndReturnBasket()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var identifier = new ProductIdentifier(productId, null);
+                var stockItem = new StockItem() { Id = productId };
+                var basket = new List<BasketItem>();
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _basketRepository
+                    .GetBasket(userId)
+                    .Returns(basket);
+
+                _basketManager
+                    .AddItemToBasket(userId, identifier)
+                    .ShouldBe(basket);
+
+                _basketRepository
+                    .Received()
+                    .AddItemToUserBasket(userId, productId);
+            }
+        }
+
+        public class CanAddItemsToBasketCheck : BasketManagerTests
+        {
+            [Test]
+            public void ShouldReturnUnavailableWhenProductsNotFound()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var basket = new List<BasketItem>()
+                {
+                    new BasketItem()
+                    {
+                        ProductId = productId,
+                        ItemCount = 1
+                    }
+                };
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns((StockItem)null);
+
+                var check = _basketManager
+                    .CanAddItemsToBasketCheck(userId, basket);
+
+                check.Available.ShouldBeFalse();
+                check.ProductsNotFound.Count.ShouldBe(1);
+                check.ProductsNotFound.Single().ShouldBe(productId);
+                check.ProductsNotAvailable.ShouldBeEmpty();
+            }
+
+            [Test]
+            public void ShouldReturnUnavailableWhenProductsHaveInsufficientStock()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var productName = "name";
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Name = productName,
+                    Stock = 1
+                };
                 var basketItem = new BasketItem()
                 {
                     ProductId = productId,
                     ItemCount = 1
                 };
 
-                var productsToAdd = new List<BasketItem>()
+                var basket = new List<BasketItem>()
                 {
-                    new BasketItem() { ProductId = 1, ItemCount = 2 }
+                    basketItem
                 };
 
                 _stockRepository
@@ -234,183 +232,357 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .Returns(stockItem);
 
                 _basketRepository
-                    .GetBasketItem(userName, productId)
+                    .GetBasketItem(userId, productId)
                     .Returns(basketItem);
 
-                _controller
-                    .BulkAddToBasket(userName, productsToAdd)
-                    .ShouldBeOfType<BadRequestObjectResult>();
+                var check = _basketManager
+                    .CanAddItemsToBasketCheck(userId, basket);
+
+                check.Available.ShouldBeFalse();
+                check.ProductsNotAvailable.Count.ShouldBe(1);
+                check.ProductsNotAvailable.Single().ShouldBe(productName);
+                check.ProductsNotFound.ShouldBeEmpty();
             }
 
             [Test]
-            public void ShouldAddToBasketRequestWhenItemsInStock()
+            public void ShouldReturnOkWhenProductIsInStock()
             {
-                var userName = "user";
-                var productId1 = 1;
-                var productId2 = 2;
-                var itemsToAdd = 2;
-
-                var stockItem1 = new StockItem()
+                var userId = "userId";
+                var productId = 1;
+                var productName = "name";
+                var stockItem = new StockItem()
                 {
-                    Id = productId1,
-                    Stock = 3
+                    Id = productId,
+                    Name = productName,
+                    Stock = 2
                 };
-
-                var stockItem2 = new StockItem()
+                var basketItem = new BasketItem()
                 {
-                    Id = productId2,
-                    Stock = 3
-                };
-
-                var basketItem1 = new BasketItem()
-                {
-                    ProductId = productId1,
+                    ProductId = productId,
                     ItemCount = 1
                 };
-
-                var basketItem2 = new BasketItem()
+                var basket = new List<BasketItem>()
                 {
-                    ProductId = productId2,
-                    ItemCount = 1
-                };
-
-                var productsToAdd = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = productId1, ItemCount = itemsToAdd },
-                    new BasketItem() { ProductId = productId2, ItemCount = itemsToAdd }
+                    basketItem
                 };
 
                 _stockRepository
-                    .GetStockItem(productId1)
-                    .Returns(stockItem1);
-
-                _stockRepository
-                    .GetStockItem(productId2)
-                    .Returns(stockItem2);
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
 
                 _basketRepository
-                    .GetBasketItem(userName, productId1)
-                    .Returns(basketItem1);
+                    .GetBasketItem(userId, productId)
+                    .Returns(basketItem);
 
-                _basketRepository
-                    .GetBasketItem(userName, productId2)
-                    .Returns(basketItem2);
+                var check = _basketManager
+                    .CanAddItemsToBasketCheck(userId, basket);
 
-                _controller
-                    .BulkAddToBasket(userName, productsToAdd)
-                    .ShouldBeOfType<JsonResult>();
-
-                _basketRepository
-                    .Received()
-                    .AddItemToUserBasket(userName, productId1, itemsToAdd);
-
-                _basketRepository
-                    .Received()
-                    .AddItemToUserBasket(userName, productId2, itemsToAdd);
+                check.Available.ShouldBeTrue();
+                check.ProductsNotAvailable.ShouldBeEmpty();
+                check.ProductsNotFound.ShouldBeEmpty();
             }
         }
 
-        public class BasketCheckout : BasketTestBase
+        public class AddItemsToBasket : BasketManagerTests
         {
             [Test]
-            public void ShouldReturnBadRequestWhenProductNotFound()
+            public void ShouldAddItemsToBasketAndReturnBasket()
             {
-                var userName = "user";
+                var userId = "userId";
                 var productId = 1;
 
-                var basketItems = new List<BasketItem>()
+                var basketItem = new BasketItem()
                 {
-                    new BasketItem() { ProductId = productId, ItemCount = 1}
+                    ProductId = productId,
+                    ItemCount = 2
+                };
+                var basket = new List<BasketItem>()
+                {
+                    basketItem
                 };
 
                 _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                    .GetBasket(userId)
+                    .Returns(basket);
 
-                _controller
-                    .CheckoutBasket(userName)
-                    .ShouldBeOfType<BadRequestObjectResult>()
-                    .Value.ShouldBeOfType<string>()
-                    .ShouldBe("Products not found: " + productId);
+                _basketManager
+                    .AddItemsToBasket(userId, basket)
+                    .ShouldBe(basket);
+
+                _basketRepository
+                    .Received()
+                    .AddItemToUserBasket(userId, basketItem.ProductId, basketItem.ItemCount);
             }
+        }
 
+        public class CanCheckoutBasketCheck : BasketManagerTests
+        {
             [Test]
-            public void ShouldReturnBadRequestWhenInsufficientStock()
+            public void ShouldReturnUnavailableWhenProductsNotFound()
             {
+                var userId = "userId";
                 var productId = 1;
-                var productName = "productName";
-                var userName = "user";
-
-                var stockItem = new StockItem()
+                var basket = new List<BasketItem>()
                 {
-                    Id = productId,
-                    Stock = 0,
-                    Name = productName
-                };
-
-                var basketItems = new List<BasketItem>()
-                {
-                    new BasketItem() { ProductId = productId, ItemCount = 1}
+                    new BasketItem()
+                    {
+                        ProductId = productId,
+                        ItemCount = 1
+                    }
                 };
 
                 _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                    .GetBasket(userId)
+                    .Returns(basket);
 
                 _stockRepository
                     .GetStockItem(productId)
-                    .Returns(stockItem);
+                    .Returns((StockItem)null);
 
-                _controller
-                    .CheckoutBasket(userName)
-                    .ShouldBeOfType<BadRequestObjectResult>()
-                    .Value.ShouldBeOfType<string>()
-                    .ShouldBe("Not Enough Stock for item(s): " + productName);
+                var check = _basketManager
+                    .CanCheckoutBasketCheck(userId);
+
+                check.Available.ShouldBeFalse();
+                check.ProductsNotFound.Count.ShouldBe(1);
+                check.ProductsNotFound.Single().ShouldBe(productId);
+                check.ProductsNotAvailable.ShouldBeEmpty();
             }
 
             [Test]
-            public void ShouldReturnInvoiceAndDeductStockWhenSuccesful()
+            public void ShouldReturnUnavailableWhenProductsHaveInsufficientStock()
             {
+                var userId = "userId";
                 var productId = 1;
-                var stock = 2;
-                var price = 6.99M;
-                var productName = "productName";
-                var userName = "user";
-
+                var productName = "name";
                 var stockItem = new StockItem()
                 {
                     Id = productId,
-                    Stock = stock,
                     Name = productName,
-                    Price = price
+                    Stock = 0
+                };
+                var basketItem = new BasketItem()
+                {
+                    ProductId = productId,
+                    ItemCount = 1
                 };
 
-                var basketItems = new List<BasketItem>()
+                var basket = new List<BasketItem>()
                 {
-                    new BasketItem() { ProductId = productId, ItemCount = stock}
+                    basketItem
                 };
 
                 _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                    .GetBasket(userId)
+                    .Returns(basket);
 
                 _stockRepository
                     .GetStockItem(productId)
                     .Returns(stockItem);
+
                 _basketRepository
-                    .GetBasket(userName)
-                    .Returns(basketItems);
+                    .GetBasketItem(userId, productId)
+                    .Returns(basketItem);
 
-                var invoice = _controller
-                    .CheckoutBasket(userName)
-                    .ShouldBeOfType<JsonResult>()
-                    .Value.ShouldBeOfType<Invoice>();
+                var check = _basketManager
+                    .CanCheckoutBasketCheck(userId);
 
-                invoice.Total.ShouldBe(stock * price);
-                invoice.User.ShouldBe(userName);
+                check.Available.ShouldBeFalse();
+                check.ProductsNotAvailable.Count.ShouldBe(1);
+                check.ProductsNotAvailable.Single().ShouldBe(productName);
+                check.ProductsNotFound.ShouldBeEmpty();
+            }
+
+            [Test]
+            public void ShouldReturnAvailableWhenProductIsInStock()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var productName = "name";
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Name = productName,
+                    Stock = 2
+                };
+                var basketItem = new BasketItem()
+                {
+                    ProductId = productId,
+                    ItemCount = 1
+                };
+                var basket = new List<BasketItem>()
+                {
+                    basketItem
+                };
+
+                _basketRepository
+                    .GetBasket(userId)
+                    .Returns(basket);
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _basketRepository
+                    .GetBasketItem(userId, productId)
+                    .Returns(basketItem);
+
+                var check = _basketManager
+                    .CanCheckoutBasketCheck(userId);
+
+                check.Available.ShouldBeTrue();
+                check.ProductsNotAvailable.ShouldBeEmpty();
+                check.ProductsNotFound.ShouldBeEmpty();
+            }
+        }
+
+        public class CheckoutBasket : BasketManagerTests
+        {
+            [Test]
+            public void ShouldRemoveStockAndGenerateInvoice()
+            {
+                var userId = "userId";
+                var productId = 1;
+
+                var basketItem = new BasketItem()
+                {
+                    ProductId = productId,
+                    ItemCount = 1
+                };
+                var basket = new List<BasketItem>()
+                {
+                    basketItem
+                };
+
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Stock = 2
+                };
+
+                _basketRepository
+                    .GetBasket(userId)
+                    .Returns(basket);
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                var invoice = _basketManager
+                    .CheckoutBasket(userId);
+
+                _stockRepository
+                    .Received()
+                    .RemoveStock(basketItem.ProductId, basketItem.ItemCount);
+
                 invoice.Items.Count.ShouldBe(1);
             }
         }
-    }
 
+        public class CanRemoveItemFromBasketCheck : BasketManagerTests
+        {
+            [Test]
+            public void ShouldReturnProductNotFoundWhenNoProductReturned()
+            {
+                var userId = "userId";
+                var productId = 1;
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns((StockItem)null);
+
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, productId)
+                    .ShouldBe(BasketOperationStatus.ProductNotFound);
+            }
+
+            [Test]
+            public void ShouldReturnNotInBasketWhenNotEnoughStock()
+            {
+                var userId = "userId";
+                var productId = 1;
+                
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Stock = 0
+                };
+                var basketItem = new BasketItem()
+                {
+                    ProductId = productId,
+                    ItemCount = 0
+                };
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _basketRepository
+                    .GetBasketItem(userId, productId)
+                    .Returns(basketItem);
+
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, productId)
+                    .ShouldBe(BasketOperationStatus.NotInBasket);
+            }
+
+            [Test]
+            public void ShouldReturnOkWhenSufficientStock()
+            {
+                var userId = "userId";
+                var productId = 1;
+                
+                var stockItem = new StockItem()
+                {
+                    Id = productId,
+                    Stock = 1
+                };
+                var basketItem = new BasketItem()
+                {
+                    ProductId = productId,
+                    ItemCount = 1
+                };
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _basketRepository
+                    .GetBasketItem(userId, productId)
+                    .Returns(basketItem);
+
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, productId)
+                    .ShouldBe(BasketOperationStatus.Ok);
+            }
+        }
+        
+        public class RemoveItemFromBasket : BasketManagerTests
+        {
+            [Test]
+            public void ShouldRemoveItemFromBasketAndReturnBasket()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var identifier = new ProductIdentifier(productId, null);
+                var stockItem = new StockItem() { Id = productId };
+                var basket = new List<BasketItem>();
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns(stockItem);
+
+                _basketRepository
+                    .GetBasket(userId)
+                    .Returns(basket);
+
+                _basketManager
+                    .RemoveItemFromBasket(userId, productId)
+                    .ShouldBe(basket);
+
+                _basketRepository
+                    .Received()
+                    .RemoveItemFromUserBasket(userId, productId);
+            }
+        }
+    }
 }

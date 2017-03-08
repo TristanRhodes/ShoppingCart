@@ -35,17 +35,21 @@ namespace ShoppingCart.Core.Controllers
             [FromQuery]int? productId = null,
             [FromQuery]string productName = null)
         {
-            if (HasInvalidProductIdentifiers(productId, productName))
+            var identifier = new ProductIdentifier(productId, productName);
+
+            var actionStatus = _basketManager
+                .CanAddItemToBasketCheck(userId, identifier);
+
+            if (actionStatus == BasketOperationStatus.InvalidIdentifier)
                 return BadRequest("Please supply a single value for productId or productName.");
 
-            var product = _stockRepository.GetStockItem(productId, productName);
-            if (product == null)
+            if (actionStatus == BasketOperationStatus.ProductNotFound)
                 return NotFound("Product");
 
-            if (!_basketManager.CanAddItemToBasket(userId, product.Id))
+            if (actionStatus == BasketOperationStatus.InsufficientStock)
                 return BadRequest("Not Enough Stock");
             
-            var basket = _basketManager.AddItemToBasket(userId, product.Id);
+            var basket = _basketManager.AddItemToBasket(userId, identifier);
             return Json(basket);
         }
 

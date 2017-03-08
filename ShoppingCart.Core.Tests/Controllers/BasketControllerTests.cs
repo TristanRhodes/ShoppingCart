@@ -15,40 +15,35 @@ namespace ShoppingCart.Core.Tests.Controllers
 {
     public class BasketControllerTests
     {
-        public abstract class BasketTestBase
+        protected IBasketRepository _basketRepository;
+        protected IStockRepository _stockRepository;
+        protected IBasketManager _basketManager;
+
+        protected BasketController _controller;
+
+        [SetUp]
+        public void Setup()
         {
-            protected IBasketRepository _basketRepository;
-            protected IStockRepository _stockRepository;
-            protected IBasketManager _basketManager;
+            _stockRepository = Substitute.For<IStockRepository>();
+            _basketRepository = Substitute.For<IBasketRepository>();
+            _basketManager = Substitute.For<IBasketManager>();
 
-            protected BasketController _controller;
-
-            [SetUp]
-            public void Setup()
-            {
-                _stockRepository = Substitute.For<IStockRepository>();
-                _basketRepository = Substitute.For<IBasketRepository>();
-                _basketManager = Substitute.For<IBasketManager>();
-
-                _controller = new BasketController(_stockRepository, _basketRepository, _basketManager);
-            }
+            _controller = new BasketController(_stockRepository, _basketRepository, _basketManager);
         }
 
-        public class AddToBasket : BasketTestBase
+        public class AddToBasket : BasketControllerTests
         {
             [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreSupplied()
+            public void ShouldReturnBadRequestWhenProductIdentifierIsInvalid()
             {
-                _controller
-                    .AddToBasket(string.Empty, 1, "1")
-                    .ShouldBeOfType<BadRequestObjectResult>();
-            }
+                var userName = "user";
 
-            [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreNotSupplied()
-            {
+                _basketManager
+                    .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.InvalidIdentifier);
+
                 _controller
-                   .AddToBasket(string.Empty, null, null)
+                   .AddToBasket(userName, null, null)
                    .ShouldBeOfType<BadRequestObjectResult>();
             }
 
@@ -56,10 +51,13 @@ namespace ShoppingCart.Core.Tests.Controllers
             public void ShouldReturnNotFoundWhenNoProductExists()
             {
                 var userName = "user";
-                var productId = 1;
+
+                _basketManager
+                    .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.ProductNotFound);
 
                 _controller
-                    .AddToBasket(userName, productId)
+                    .AddToBasket(userName, null, null)
                     .ShouldBeOfType<NotFoundObjectResult>();
             }
 
@@ -69,15 +67,9 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userName = "user";
                 var productId = 1;
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 0
-                };
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
+                _basketManager
+                    .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.InsufficientStock);
 
                 _controller
                     .AddToBasket(userName, productId)
@@ -90,19 +82,9 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var userName = "user";
                 var productId = 1;
 
-                var stockItem = new StockItem()
-                {
-                    Id = productId,
-                    Stock = 2
-                };
-
-                _stockRepository
-                    .GetStockItem(productId)
-                    .Returns(stockItem);
-
                 _basketManager
-                    .CanAddItemToBasket(userName, productId)
-                    .Returns(true);
+                    .CanAddItemToBasketCheck(userName, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.Ok);
 
                 _controller
                     .AddToBasket(userName, productId)
@@ -110,11 +92,11 @@ namespace ShoppingCart.Core.Tests.Controllers
 
                 _basketManager
                     .Received()
-                    .AddItemToBasket(userName, productId);
+                    .AddItemToBasket(userName, Arg.Any<ProductIdentifier>());
             }
         }
 
-        public class RemoveFromBasket : BasketTestBase
+        public class RemoveFromBasket : BasketControllerTests
         {
             [Test]
             public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreSupplied()
@@ -169,7 +151,7 @@ namespace ShoppingCart.Core.Tests.Controllers
             }
         }
 
-        public class BulkAddToBasket : BasketTestBase
+        public class BulkAddToBasket : BasketControllerTests
         {
             [Test]
             public void ShouldReturnBadRequestWhenItemsNotFound()
@@ -243,7 +225,7 @@ namespace ShoppingCart.Core.Tests.Controllers
             }
         }
 
-        public class BasketCheckout : BasketTestBase
+        public class BasketCheckout : BasketControllerTests
         {
             [Test]
             public void ShouldReturnBadRequestWhenItemsNotFound()

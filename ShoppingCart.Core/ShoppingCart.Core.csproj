@@ -405,6 +405,7 @@
     <Compile Include="Controllers\DiagnosticsController.cs" />
     <Compile Include="Controllers\StockController.cs" />
     <Compile Include="Components\IDataImporter.cs" />
+    <Compile Include="Model\BasketOperationStatus.cs" />
     <Compile Include="Model\AvailabilityCheckResults.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -22,6 +22,11 @@ namespace ShoppingCart.Core.Components
 
     public static class IStockRepositoryExtensions
     {
+        public static StockItem GetStockItem(this IStockRepository repository, ProductIdentifier identifier)
+        {
+            return repository.GetStockItem(identifier.ProductId, identifier.ProductName);
+        }
+
         public static StockItem GetStockItem(this IStockRepository repository, int? productId, string productName)
         {
             if (productId.HasValue)
