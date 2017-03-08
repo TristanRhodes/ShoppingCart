@@ -34,7 +34,7 @@ namespace ShoppingCart.Core.Commands
             string userId,
             ProductIdentifier identifier)
         {
-            if (identifier.HasInvalidProductIdentifiers())
+            if (!identifier.Valid)
                 return BasketOperationStatus.InvalidIdentifier;
 
             var stockItem = _stockRepository.GetStockItem(identifier);
@@ -52,7 +52,7 @@ namespace ShoppingCart.Core.Commands
             string userId,
             ProductIdentifier identifier)
         {
-            if (identifier.HasInvalidProductIdentifiers())
+            if (!identifier.Valid)
                 throw new ApplicationException("Invalid product identifier");
 
             var stockItem = _stockRepository.GetStockItem(identifier);

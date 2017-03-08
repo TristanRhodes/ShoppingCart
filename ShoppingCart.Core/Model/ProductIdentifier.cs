@@ -30,10 +30,13 @@ namespace ShoppingCart.Core.Model
 
         public string ProductName { get; set; }
 
-        public bool HasInvalidProductIdentifiers()
+        public bool Valid
         {
-            return (!ProductId.HasValue && string.IsNullOrEmpty(ProductName))
-                || (ProductId.HasValue && !string.IsNullOrEmpty(ProductName));
+            get
+            {
+                return !((!ProductId.HasValue && string.IsNullOrEmpty(ProductName))
+                    || (ProductId.HasValue && !string.IsNullOrEmpty(ProductName)));
+            }
         }
     }
 }
