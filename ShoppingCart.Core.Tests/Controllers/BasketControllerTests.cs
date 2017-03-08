@@ -179,7 +179,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var productsToAdd = new List<BasketItem>();
 
                 var check = new AvailabilityCheckResults();
-                check.Available = false;
+                check.Result = AvailabilityCheckStatus.ProductsNotFound;
                 check.ProductsNotFound.Add(1);
 
                 _bulkAddCommand
@@ -200,7 +200,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var productsToAdd = new List<BasketItem>();
 
                 var check = new AvailabilityCheckResults();
-                check.Available = false;
+                check.Result = AvailabilityCheckStatus.InsufficientStock;
                 check.ProductsNotAvailable.Add("product");
 
                 _bulkAddCommand
@@ -221,7 +221,6 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var productsToAdd = new List<BasketItem>();
 
                 var check = new AvailabilityCheckResults();
-                check.Available = false;
 
                 var basket = new List<BasketItem>();
 
@@ -253,7 +252,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var productsToAdd = new List<BasketItem>();
 
                 var check = new AvailabilityCheckResults();
-                check.Available = false;
+                check.Result = AvailabilityCheckStatus.ProductsNotFound;
                 check.ProductsNotFound.Add(1);
 
                 _checkoutCommand
@@ -274,7 +273,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var productsToAdd = new List<BasketItem>();
 
                 var check = new AvailabilityCheckResults();
-                check.Available = false;
+                check.Result = AvailabilityCheckStatus.InsufficientStock;
                 check.ProductsNotAvailable.Add("product");
 
                 _checkoutCommand
@@ -295,7 +294,6 @@ namespace ShoppingCart.Core.Tests.Controllers
                 var productsToAdd = new List<BasketItem>();
 
                 var check = new AvailabilityCheckResults();
-                check.Available = false;
 
                 var invoice = new Invoice();
 

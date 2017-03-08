@@ -40,14 +40,14 @@ namespace ShoppingCart.Core.Commands
                 var product = _stockRepository.GetStockItem(basketItem.ProductId);
                 if (product == null)
                 {
-                    results.Available = false;
+                    results.Result = AvailabilityCheckStatus.ProductsNotFound;
                     results.ProductsNotFound.Add(basketItem.ProductId);
                     continue;
                 }
 
                 if (!product.HasSufficientStockFor(basketItem.ItemCount))
                 {
-                    results.Available = false;
+                    results.Result = AvailabilityCheckStatus.InsufficientStock;
                     results.ProductsNotAvailable.Add(product.Name);
                     continue;
                 }

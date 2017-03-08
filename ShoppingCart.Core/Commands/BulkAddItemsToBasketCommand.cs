@@ -41,7 +41,7 @@ namespace ShoppingCart.Core.Commands
                 var product = _stockRepository.GetStockItem(addToBasketItem.ProductId);
                 if (product == null)
                 {
-                    results.Available = false;
+                    results.Result = AvailabilityCheckStatus.ProductsNotFound;
                     results.ProductsNotFound.Add(addToBasketItem.ProductId);
                     continue;
                 }
@@ -49,7 +49,7 @@ namespace ShoppingCart.Core.Commands
                 var basketItem = _basketRepository.GetBasketItem(userId, addToBasketItem.ProductId);
                 if (!product.HasSufficientStockFor(basketItem.ItemCount + addToBasketItem.ItemCount))
                 {
-                    results.Available = false;
+                    results.Result = AvailabilityCheckStatus.InsufficientStock;
                     results.ProductsNotAvailable.Add(product.Name);
                     continue;
                 }

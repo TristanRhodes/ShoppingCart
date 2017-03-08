@@ -51,7 +51,7 @@ namespace ShoppingCart.Core.Tests.Commands
                 var check = _command
                     .CanCheckoutBasketCheck(userId);
 
-                check.Available.ShouldBeFalse();
+                check.Result.ShouldBe(AvailabilityCheckStatus.ProductsNotFound);
                 check.ProductsNotFound.Count.ShouldBe(1);
                 check.ProductsNotFound.Single().ShouldBe(productId);
                 check.ProductsNotAvailable.ShouldBeEmpty();
@@ -95,7 +95,7 @@ namespace ShoppingCart.Core.Tests.Commands
                 var check = _command
                     .CanCheckoutBasketCheck(userId);
 
-                check.Available.ShouldBeFalse();
+                check.Result.ShouldBe(AvailabilityCheckStatus.InsufficientStock);
                 check.ProductsNotAvailable.Count.ShouldBe(1);
                 check.ProductsNotAvailable.Single().ShouldBe(productName);
                 check.ProductsNotFound.ShouldBeEmpty();
@@ -138,7 +138,7 @@ namespace ShoppingCart.Core.Tests.Commands
                 var check = _command
                     .CanCheckoutBasketCheck(userId);
 
-                check.Available.ShouldBeTrue();
+                check.Result.ShouldBe(AvailabilityCheckStatus.Ok);
                 check.ProductsNotAvailable.ShouldBeEmpty();
                 check.ProductsNotFound.ShouldBeEmpty();
             }
