@@ -99,30 +99,48 @@ namespace ShoppingCart.Core.Tests.Controllers
         public class RemoveFromBasket : BasketControllerTests
         {
             [Test]
-            public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreSupplied()
-            {
-                _controller
-                    .RemoveFromBasket(string.Empty, 1, "1")
-                    .ShouldBeOfType<BadRequestObjectResult>();
-            }
-
-            [Test]
             public void ShouldReturnBadRequestWhenBothProductIdAndProductNameAreNotSupplied()
             {
+                var userId = "user";
+                var productId = 1;
+
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.InvalidIdentifier);
+
                 _controller
-                   .RemoveFromBasket(string.Empty, null, null)
+                   .RemoveFromBasket(userId, productId, null)
                    .ShouldBeOfType<BadRequestObjectResult>();
             }
 
             [Test]
             public void ShouldReturnNotFoundWhenNoProductExists()
             {
-                var userName = "user";
+                var userId = "user";
                 var productId = 1;
 
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.ProductNotFound);
+
                 _controller
-                    .RemoveFromBasket(userName, productId)
+                    .RemoveFromBasket(userId, productId)
                     .ShouldBeOfType<NotFoundObjectResult>();
+            }
+
+            [Test]
+            public void ShouldReturnNotInBasketWhenBasketItemIsEmpty()
+            {
+                var userId = "user";
+                var productId = 1;
+
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, Arg.Any<ProductIdentifier>())
+                    .Returns(BasketOperationStatus.NotInBasket);
+
+                _controller
+                    .RemoveFromBasket(userId, productId)
+                    .ShouldBeOfType<BadRequestObjectResult>();
             }
 
             [Test]
@@ -147,7 +165,7 @@ namespace ShoppingCart.Core.Tests.Controllers
 
                 _basketManager
                     .Received()
-                    .RemoveItemFromBasket(userName, productId);
+                    .RemoveItemFromBasket(userName, Arg.Any<ProductIdentifier>());
             }
         }
 

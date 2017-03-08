@@ -76,14 +76,21 @@ namespace ShoppingCart.Core.Controllers
             [FromQuery]int? productId = null,
             [FromQuery]string productName = null)
         {
-            if (HasInvalidProductIdentifiers(productId, productName))
+            var identifier = new ProductIdentifier(productId, productName);
+
+            var actionStatus = _basketManager
+                .CanRemoveItemFromBasketCheck(userId, identifier);
+
+            if (actionStatus == BasketOperationStatus.InvalidIdentifier)
                 return BadRequest("Please supply a single value for productId or productName.");
 
-            var product = _stockRepository.GetStockItem(productId, productName);
-            if (product == null)
+            if (actionStatus == BasketOperationStatus.ProductNotFound)
                 return NotFound("Product");
 
-            var basket = _basketManager.RemoveItemFromBasket(userId, product.Id);
+            if (actionStatus == BasketOperationStatus.NotInBasket)
+                return BadRequest("Not in basket");
+
+            var basket = _basketManager.RemoveItemFromBasket(userId, identifier);
             return Json(basket);
         }
 
@@ -91,7 +98,9 @@ namespace ShoppingCart.Core.Controllers
         public IActionResult CheckoutBasket(
             [FromRoute]string userId)
         {
-            var results = _basketManager.CanCheckoutBasketCheck(userId);
+            var results = _basketManager
+                .CanCheckoutBasketCheck(userId);
+
             if (results.HasNotFoundProducts)
                 return BadRequest("Products not found: " + string.Join(", ", results.ProductsNotFound));
 
@@ -100,12 +109,6 @@ namespace ShoppingCart.Core.Controllers
 
             var invoice = _basketManager.CheckoutBasket(userId);
             return Json(invoice);
-        }
-
-        private static bool HasInvalidProductIdentifiers(int? productId, string productName)
-        {
-            return (!productId.HasValue && string.IsNullOrEmpty(productName))
-                || (productId.HasValue && !string.IsNullOrEmpty(productName));
         }
     }
 }

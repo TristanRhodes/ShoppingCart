@@ -13,10 +13,12 @@ namespace ShoppingCart.Core.Components
 
         List<BasketItem> AddItemsToBasket(string userId, List<BasketItem> products);
 
+        BasketOperationStatus CanRemoveItemFromBasketCheck(string userId, ProductIdentifier identifier);
+
+        List<BasketItem> RemoveItemFromBasket(string userId, ProductIdentifier identifier);
+
         AvailabilityCheckResults CanCheckoutBasketCheck(string userId);
 
-        List<BasketItem> RemoveItemFromBasket(string userId, int productId);
-        
         Invoice CheckoutBasket(string userId);
     }
 
@@ -25,6 +27,18 @@ namespace ShoppingCart.Core.Components
         public ProductIdentifier(int? productId, string productName)
         {
             ProductId = productId;
+            ProductName = productName;
+        }
+
+        public ProductIdentifier(int productId)
+        {
+            ProductId = productId;
+            ProductName = null;
+        }
+
+        public ProductIdentifier(string productName)
+        {
+            ProductId = null;
             ProductName = productName;
         }
 

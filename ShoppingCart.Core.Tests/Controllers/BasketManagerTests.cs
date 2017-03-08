@@ -481,17 +481,29 @@ namespace ShoppingCart.Core.Tests.Controllers
         public class CanRemoveItemFromBasketCheck : BasketManagerTests
         {
             [Test]
+            public void ShouldReturnInvalidIdentifierIfTheIdentifierSuppliedIsInvalid()
+            {
+                var userId = "userId";
+                var identifier = new ProductIdentifier(null, null);
+
+                _basketManager
+                    .CanRemoveItemFromBasketCheck(userId, identifier)
+                    .ShouldBe(BasketOperationStatus.InvalidIdentifier);
+            }
+            
+            [Test]
             public void ShouldReturnProductNotFoundWhenNoProductReturned()
             {
                 var userId = "userId";
                 var productId = 1;
+                var identifier = new ProductIdentifier(productId, null);
 
                 _stockRepository
                     .GetStockItem(productId)
                     .Returns((StockItem)null);
 
                 _basketManager
-                    .CanRemoveItemFromBasketCheck(userId, productId)
+                    .CanRemoveItemFromBasketCheck(userId, identifier)
                     .ShouldBe(BasketOperationStatus.ProductNotFound);
             }
 
@@ -500,7 +512,8 @@ namespace ShoppingCart.Core.Tests.Controllers
             {
                 var userId = "userId";
                 var productId = 1;
-                
+                var identifier = new ProductIdentifier(productId, null);
+
                 var stockItem = new StockItem()
                 {
                     Id = productId,
@@ -521,7 +534,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .Returns(basketItem);
 
                 _basketManager
-                    .CanRemoveItemFromBasketCheck(userId, productId)
+                    .CanRemoveItemFromBasketCheck(userId, identifier)
                     .ShouldBe(BasketOperationStatus.NotInBasket);
             }
 
@@ -530,7 +543,8 @@ namespace ShoppingCart.Core.Tests.Controllers
             {
                 var userId = "userId";
                 var productId = 1;
-                
+                var identifier = new ProductIdentifier(productId, null);
+
                 var stockItem = new StockItem()
                 {
                     Id = productId,
@@ -551,13 +565,38 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .Returns(basketItem);
 
                 _basketManager
-                    .CanRemoveItemFromBasketCheck(userId, productId)
+                    .CanRemoveItemFromBasketCheck(userId, identifier)
                     .ShouldBe(BasketOperationStatus.Ok);
             }
         }
         
         public class RemoveItemFromBasket : BasketManagerTests
         {
+            [Test]
+            public void ShouldThrowInvalidIdentifierExceptionIfTheIdentifierSuppliedIsInvalid()
+            {
+                var userId = "userId";
+                var identifier = new ProductIdentifier(null, null);
+
+                Should.Throw<ApplicationException>(() => _basketManager
+                    .RemoveItemFromBasket(userId, identifier));
+            }
+
+            [Test]
+            public void ShouldThrowProductNotFoundExceptionIfProductNotFound()
+            {
+                var userId = "userId";
+                var productId = 1;
+                var identifier = new ProductIdentifier(productId, null);
+
+                _stockRepository
+                    .GetStockItem(productId)
+                    .Returns((StockItem)null);
+
+                Should.Throw<ApplicationException>(() => _basketManager
+                    .RemoveItemFromBasket(userId, identifier));
+            }
+
             [Test]
             public void ShouldRemoveItemFromBasketAndReturnBasket()
             {
@@ -576,7 +615,7 @@ namespace ShoppingCart.Core.Tests.Controllers
                     .Returns(basket);
 
                 _basketManager
-                    .RemoveItemFromBasket(userId, productId)
+                    .RemoveItemFromBasket(userId, identifier)
                     .ShouldBe(basket);
 
                 _basketRepository
