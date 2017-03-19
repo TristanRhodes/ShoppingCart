@@ -9,13 +9,13 @@ namespace ShoppingCart.Core.Controllers
 {
     public class DiagnosticsController : Controller
     {
-        [Route("diagnostics/heartbeat")]
+        [HttpGet("diagnostics/heartbeat")]
         public IActionResult Heartbeat()
         {
             return Ok();
         }
 
-        [Route("diagnostics/recycle")]
+        [HttpPost("diagnostics/recycle")]
         public IActionResult Recycle()
         {
             //TODO: Add recycle logic
