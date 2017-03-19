@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Core.Components;
+using ShoppingCart.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +21,7 @@ namespace ShoppingCart.Core.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(List<StockItem>), StatusCodes.Status200OK)]
         public IActionResult GetStock()
         {
             var stock = _stockRepository.GetStock();

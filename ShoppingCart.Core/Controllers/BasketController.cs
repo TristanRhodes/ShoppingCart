@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Core.Commands;
 using ShoppingCart.Core.Components;
 using ShoppingCart.Core.Model;
@@ -31,6 +32,7 @@ namespace ShoppingCart.Core.Controllers
         }
 
         [HttpGet("api/{userId}/basket")]
+        [ProducesResponseType(typeof(List<BasketItem>), StatusCodes.Status200OK)]
         public IActionResult GetBasket(
             [FromRoute]string userId)
         {
@@ -38,6 +40,7 @@ namespace ShoppingCart.Core.Controllers
         }
 
         [HttpPut("api/{userId}/basket/add")]
+        [ProducesResponseType(typeof(List<BasketItem>), StatusCodes.Status200OK)]
         public IActionResult AddToBasket(
             [FromRoute]string userId,
             [FromQuery]int? productId = null,
@@ -57,6 +60,7 @@ namespace ShoppingCart.Core.Controllers
         }
 
         [HttpPost("api/{userId}/basket/add")]
+        [ProducesResponseType(typeof(List<BasketItem>), StatusCodes.Status200OK)]
         public IActionResult BulkAddToBasket(
             [FromRoute]string userId,
             [FromBody]List<BasketItem> products)
@@ -75,6 +79,7 @@ namespace ShoppingCart.Core.Controllers
         }
 
         [HttpPut("api/{userId}/basket/remove")]
+        [ProducesResponseType(typeof(List<BasketItem>), StatusCodes.Status200OK)]
         public IActionResult RemoveFromBasket(
             [FromRoute]string userId,
             [FromQuery]int? productId = null,
@@ -96,6 +101,7 @@ namespace ShoppingCart.Core.Controllers
         }
 
         [HttpPut("api/{userId}/basket/checkout")]
+        [ProducesResponseType(typeof(Invoice), StatusCodes.Status200OK)]
         public IActionResult CheckoutBasket(
             [FromRoute]string userId)
         {
